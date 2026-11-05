@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="2-0">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Casa Game - نظام إدارة قاعة الألعاب PS5</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Orbitron + Cairo -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
     
     <script>
@@ -98,7 +98,7 @@
         <div class="bg-black/60 px-5 pt-3 pb-2 flex justify-between items-center text-[11px] border-b border-pink-500/30 font-game backdrop-blur-md sticky top-0 z-50">
             <div class="flex items-center gap-2">
                 <span id="currentTimeDisplay" class="text-viceCyan font-extrabold tracking-wider">12:00</span>
-                <span class="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full border border-pink-500/40">CASA GAME OS</span>
+                <span id="deviceModeBadge" class="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full border border-pink-500/40">CASA GAME OS</span>
             </div>
             <div class="flex items-center gap-3 text-slate-300">
                 <i class="fa-brands fa-playstation text-viceCyan text-sm"></i>
@@ -211,7 +211,7 @@
                     </div>
                     <div>
                         <h2 class="text-base font-black text-white">لوحة تحكم مدير Casa Game</h2>
-                        <p class="text-xs text-slate-400 mt-1">أدخل رمز الدخول </p>
+                        <p class="text-xs text-slate-400 mt-1">أدخل رمز الدخول (الافتراضي 1234)</p>
                     </div>
                     <div class="flex gap-2 justify-center pt-2">
                         <input type="password" id="adminPinInput" placeholder="****" maxlength="8" class="bg-black/80 border border-pink-500/50 text-center text-2xl font-game tracking-widest rounded-2xl px-4 py-2 w-36 focus:outline-none focus:border-cyan-400 text-white">
@@ -226,7 +226,7 @@
                     <div class="synth-card p-4 rounded-2xl flex justify-between items-center border border-pink-500/40">
                         <div>
                             <p class="text-xs text-slate-400 font-bold">لوحة الإدارة اليومية والتحكم الكامل</p>
-                            <h3 class="text-sm font-black text-viceCyan font-game">CASA GAME CASH CONTROL</h3>
+                            <h3 class="text-sm font-black text-viceCyan font-game">CASA GAME ADMIN PHONE</h3>
                         </div>
                         <button onclick="archiveAndResetDay()" class="bg-red-500/20 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-red-500/30">
                             <i class="fa-solid fa-box-archive ml-1"></i> أرشفة وتصفير اليوم
@@ -376,7 +376,7 @@
 
     <!-- ================= MODALS & OVERLAYS ================= -->
 
-    <!-- Welcome & Password Lock Overlay -->
+    <!-- Welcome & Device Mode Selection Overlay (اختيار نوع الجهاز: هاتف المدير أم هاتف الكاشير) -->
     <div id="welcomeEntryModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-sm rounded-3xl p-6 text-center space-y-5 border-2 border-pink-500 shadow-[0_0_50px_rgba(255,42,133,0.6)]">
             <div class="w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_25px_#00f0ff] p-0.5">
@@ -392,26 +392,41 @@
                 <p class="text-xs text-pink-400 font-bold mt-1" id="entryModalDate">تاريخ اليوم: --/--/----</p>
             </div>
 
+            <!-- اختيار وضع الجهاز -->
             <div class="space-y-3 pt-1">
-                <label class="text-slate-300 text-xs font-bold block">أدخل كلمة المرور للدخول إلى النظام:</label>
+                <label class="text-slate-300 text-xs font-bold block mb-2">اختر وضع هذا الجهاز:</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" onclick="setDeviceMode('cashier')" id="modeCashierBtn" class="bg-pink-500/20 border-2 border-pink-500 text-pink-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all">
+                        <i class="fa-solid fa-cash-register text-lg"></i>
+                        <span>هاتف الكاشير</span>
+                    </button>
+                    <button type="button" onclick="setDeviceMode('admin')" id="modeAdminBtn" class="bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all">
+                        <i class="fa-solid fa-user-shield text-lg"></i>
+                        <span>هاتف المدير</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- حقل كلمة المرور (يظهر حسب وضع الجهاز) -->
+            <div id="pinBoxContainer" class="space-y-2 pt-1 hidden">
+                <label class="text-slate-300 text-xs font-bold block">أدخل كلمة المرور الخاصة بالمدير:</label>
                 <input type="password" id="entryPinInput" placeholder="****" maxlength="8" class="w-full bg-black/90 border border-pink-500/50 text-center text-3xl font-game tracking-[0.3em] rounded-2xl py-2.5 focus:outline-none focus:border-cyan-400 text-white shadow-inner">
                 <p id="entryPinError" class="text-red-400 text-xs font-bold hidden animate-pulse">كلمة المرور غير صحيحة!</p>
             </div>
 
-            <button onclick="confirmEntryAndStart()" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-400 text-slate-950 font-black py-3 rounded-2xl text-xs font-game shadow-[0_0_20px_#ff2a85] hover:brightness-110 active:scale-95 transition-all">
-                <i class="fa-solid fa-power-off ml-1"></i> دخول ونظام الإدارة
+            <button onclick="confirmEntryAndStart()" id="entrySubmitBtn" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-400 text-slate-950 font-black py-3 rounded-2xl text-xs font-game shadow-[0_0_20px_#ff2a85] hover:brightness-110 active:scale-95 transition-all">
+                <i class="fa-solid fa-power-off ml-1"></i> فتح كاشير القاعة
             </button>
         </div>
     </div>
 
-    <!-- Modal Add Game with File Upload (إضافة لعبة مع اختيار صورة من الجهاز) -->
+    <!-- Modal Add Game with File Upload -->
     <div id="addNewGameModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-cyan-500/50">
             <h3 class="font-bold text-white">إضافة لعبة جديدة مع صورة</h3>
             <input type="text" id="newGameNameInput" placeholder="اسم اللعبة..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
             <input type="text" id="newGameCategoryInput" placeholder="التصنيف (مثال: كرة قدم)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
             
-            <!-- File Input for Image Upload -->
             <div>
                 <label class="text-[10px] text-slate-400 block mb-1">اختر صورة الغلاف من الجهاز:</label>
                 <input type="file" id="newGameImageFile" accept="image/*" class="w-full bg-black border border-slate-700 rounded-xl p-2 text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
@@ -513,9 +528,10 @@
         let state = {
             adminPin: '1234',
             adminAuthed: false,
+            selectedDeviceMode: 'cashier', // 'cashier' or 'admin'
             lastOpenedDate: '',
             games: [
-                { id: 1, name: 'FIFA 26', category: 'كرة قدم', cover: 'FIFA26.avif' },
+                { id: 1, name: 'FIFA 26', category: 'كرة قدم', cover: 'https://images.unsplash.com/photo-1614680376593-902f749f705c?auto=format&fit=crop&w=300&q=80' },
                 { id: 2, name: 'PES 26', category: 'كرة قدم', cover: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=300&q=80' },
                 { id: 3, name: 'GTA V', category: 'عالم مفتوح', cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=300&q=80' },
                 { id: 4, name: 'GTA VI', category: 'Vice City', cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=300&q=80' }
@@ -588,7 +604,7 @@
         };
 
         function loadLocalStorageData() {
-            const saved = localStorage.getItem('casa_game_data_v6');
+            const saved = localStorage.getItem('casa_game_data_v7');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -605,7 +621,7 @@
         }
 
         function saveLocalStorageData() {
-            localStorage.setItem('casa_game_data_v6', JSON.stringify({
+            localStorage.setItem('casa_game_data_v7', JSON.stringify({
                 adminPin: state.adminPin,
                 sessionLogs: state.sessionLogs,
                 quickSnackEarnings: state.quickSnackEarnings,
@@ -644,15 +660,47 @@
             document.getElementById('entryModalDate').innerText = `تاريخ اليوم: ${today}`;
         }
 
-        function confirmEntryAndStart() {
-            const pinInput = document.getElementById('entryPinInput').value;
-            const errorElem = document.getElementById('entryPinError');
+        // تحديد نوع الجهاز عند الفتح (هاتف الكاشير أم هاتف المدير)
+        function setDeviceMode(mode) {
+            state.selectedDeviceMode = mode;
+            const btnCashier = document.getElementById('modeCashierBtn');
+            const btnAdmin = document.getElementById('modeAdminBtn');
+            const pinBox = document.getElementById('pinBoxContainer');
+            const submitBtn = document.getElementById('entrySubmitBtn');
 
-            if (pinInput === state.adminPin) {
-                errorElem.classList.add('hidden');
-                document.getElementById('welcomeEntryModal').classList.add('hidden');
+            if (mode === 'cashier') {
+                btnCashier.className = "bg-pink-500/20 border-2 border-pink-500 text-pink-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                btnAdmin.className = "bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                pinBox.classList.add('hidden');
+                submitBtn.innerText = "فتح كاشير القاعة";
             } else {
-                errorElem.classList.remove('hidden');
+                btnAdmin.className = "bg-purple-500/20 border-2 border-purple-500 text-purple-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                btnCashier.className = "bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                pinBox.classList.remove('hidden');
+                submitBtn.innerText = "دخول هاتف المدير";
+            }
+        }
+
+        function confirmEntryAndStart() {
+            const badge = document.getElementById('deviceModeBadge');
+            
+            if (state.selectedDeviceMode === 'cashier') {
+                badge.innerText = "CASA GAME - CASHIER PHONE";
+                document.getElementById('welcomeEntryModal').classList.add('hidden');
+                toggleView('cashier');
+            } else {
+                const pinInput = document.getElementById('entryPinInput').value;
+                const errorElem = document.getElementById('entryPinError');
+
+                if (pinInput === state.adminPin) {
+                    errorElem.classList.add('hidden');
+                    badge.innerText = "CASA GAME - ADMIN PHONE";
+                    state.adminAuthed = true;
+                    document.getElementById('welcomeEntryModal').classList.add('hidden');
+                    toggleView('admin');
+                } else {
+                    errorElem.classList.remove('hidden');
+                }
             }
         }
 
@@ -668,11 +716,21 @@
                 navCashierBtn.className = 'flex flex-col items-center gap-1 text-pink-400 transition-all';
                 navAdminBtn.className = 'flex flex-col items-center gap-1 text-slate-500 transition-all';
             } else {
+                // إذا كان هاتف كاشير وحاول الدخول للأدمين، يطلب منه الرمز أولاً
+                if (state.selectedDeviceMode === 'cashier' && !state.adminAuthed) {
+                    const pin = prompt("هذا هاتف الكاشير. أدخل كلمة مرور المدير للوصول لوحة الإدارة:");
+                    if (pin !== state.adminPin) {
+                        alert("كلمة المرور غير صحيحة!");
+                        return;
+                    }
+                    state.adminAuthed = true;
+                }
+
                 cashierView.classList.add('hidden');
                 adminView.classList.remove('hidden');
                 navAdminBtn.className = 'flex flex-col items-center gap-1 text-viceCyan transition-all';
                 navCashierBtn.className = 'flex flex-col items-center gap-1 text-slate-500 transition-all';
-                if (state.adminAuthed) renderAdminDashboard();
+                renderAdminDashboard();
             }
         }
 
@@ -1013,20 +1071,7 @@
             if (grandElem) grandElem.innerText = `${historicalTotal} دج`;
         }
 
-        function loginAdmin() {
-            const pin = document.getElementById('adminPinInput').value;
-            if (pin === state.adminPin) {
-                state.adminAuthed = true;
-                document.getElementById('adminAuthBox').classList.add('hidden');
-                document.getElementById('adminDashboardContent').classList.remove('hidden');
-                renderAdminDashboard();
-            } else {
-                document.getElementById('adminAuthError').classList.remove('hidden');
-            }
-        }
-
         function renderAdminDashboard() {
-            if (!state.adminAuthed) return;
             updateStatsUI();
             calculateReconciliation();
 
@@ -1110,7 +1155,6 @@
 
         function openAddGameModal() { document.getElementById('addNewGameModal').classList.remove('hidden'); }
         
-        // تحويل الصورة المرفوعة من الجهاز إلى Base64 لتظهر مباشرة وتتخزن في النظام
         function saveNewGameItem() {
             const name = document.getElementById('newGameNameInput').value.trim();
             const category = document.getElementById('newGameCategoryInput').value.trim();
@@ -1141,7 +1185,6 @@
                 };
                 reader.readAsDataURL(fileInput.files[0]);
             } else {
-                // صورة افتراضية في حال لم يرفع المستخدم صورة
                 state.games.push({
                     id: Date.now(),
                     name,
@@ -1190,7 +1233,7 @@
             const name = document.getElementById('newSnackNameInput').value.trim();
             const price = parseFloat(document.getElementById('newSnackPriceInput').value);
 
-            if (name && price > 0) {
+            if (name && supportDataValid = true) {
                 state.snacksMenu.push({ id: Date.now(), name, price });
                 saveLocalStorageData();
                 renderQuickSnacks();
@@ -1209,7 +1252,7 @@
         function archiveAndResetDay() {
             if (confirm("هل أنت تأكد من تصفير وأرشفة مداخيل اليوم؟ سيتم حفظ المجموع في السجل التراكمي للأيام السابقة.")) {
                 const matchIncome = state.sessionLogs.reduce((acc, log) => acc + log.matchPrice, 0);
-                const snackIncome = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
+                const snackIncome = state.sessionLogs.reduce((acc, log) => log.frigouPrice, 0) + state.quickSnackEarnings;
                 const totalIncome = matchIncome + snackIncome;
 
                 if (totalIncome > 0) {
