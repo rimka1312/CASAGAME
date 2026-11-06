@@ -341,7 +341,7 @@
             </div>
         </main>
 
-        <!-- Navigation Bar (تظهر تلقائياً حسب نوع الهاتف المختار) -->
+        <!-- Navigation Bar -->
         <nav id="appNavBar" class="absolute bottom-0 left-0 right-0 bg-black/90 border-t border-pink-500/40 px-8 py-3 flex justify-between items-center backdrop-blur-md z-40">
             <!-- Dynamic Nav Buttons -->
         </nav>
@@ -379,7 +379,6 @@
                 </div>
             </div>
 
-            <!-- كلمة المرور تظهر فقط لهاتف المدير -->
             <div id="adminPinBox" class="space-y-2 pt-1 hidden">
                 <label class="text-slate-300 text-xs font-bold block">أدخل كلمة مرور المدير:</label>
                 <input type="password" id="entryPinInput" placeholder="****" maxlength="8" class="w-full bg-black/90 border border-pink-500/50 text-center text-3xl font-game tracking-[0.3em] rounded-2xl py-2.5 focus:outline-none focus:border-cyan-400 text-white shadow-inner">
@@ -499,7 +498,7 @@
     <script>
         let state = {
             adminPin: '1234',
-            deviceRole: 'cashier', // 'cashier' أو 'admin'
+            deviceRole: 'cashier', 
             lastOpenedDate: '',
             games: [
                 { id: 1, name: 'FIFA 26', category: 'كرة قدم', cover: 'https://images.unsplash.com/photo-1614680376593-902f749f705c?auto=format&fit=crop&w=300&q=80' },
@@ -515,10 +514,10 @@
                 'open': 600
             },
             postes: [
-                { id: 1, name: 'Poste 01', active: false, game: '', preset: '', elapsedSeconds: 0, durationMinutes: 7, snacks: [] },
-                { id: 2, name: 'Poste 02', active: false, game: '', preset: '', elapsedSeconds: 0, durationMinutes: 7, snacks: [] },
-                { id: 3, name: 'Poste 03', active: false, game: '', preset: '', elapsedSeconds: 0, durationMinutes: 7, snacks: [] },
-                { id: 4, name: 'Poste 04', active: false, game: '', preset: '', elapsedSeconds: 0, durationMinutes: 7, snacks: [] }
+                { id: 1, name: 'Poste 01', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                { id: 2, name: 'Poste 02', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                { id: 3, name: 'Poste 03', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                { id: 4, name: 'Poste 04', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] }
             ],
             snacksMenu: [
                 { id: 1, name: 'قهوة Espresso', price: 100 },
@@ -532,6 +531,9 @@
             dailyArchive: []
         };
 
+        let alarmInterval = null;
+        let audioCtx = null;
+
         function getFormattedTodayDate() {
             const now = new Date();
             const dd = String(now.getDate()).padStart(2, '0');
@@ -540,18 +542,38 @@
             return `${dd}/${mm}/${yyyy}`;
         }
 
+        // منبه متواصل لا يتوقف إلا بإغلاق الجلسة أو الضغط عليه
+        function startContinuousAlarm() {
+            if (alarmInterval) return;
+            alarmInterval = setInterval(() => {
+                playBeepSound();
+            }, 1000);
+        }
+
+        function stopContinuousAlarm() {
+            if (alarmInterval) {
+                clearInterval(alarmInterval);
+                alarmInterval = null;
+            }
+        }
+
         function playBeepSound() {
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(880, ctx.currentTime);
-                gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(950, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
                 osc.connect(gain);
-                gain.connect(ctx.destination);
+                gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(ctx.currentTime + 0.6);
+                osc.stop(audioCtx.currentTime + 0.5);
             } catch(e){}
         }
 
@@ -568,20 +590,32 @@
             checkNewDayAutoArchive();
             setupWelcomeModal();
             
-            // مزامنة التحديثات تلقائياً كل ثانية بين هاتف الكاشير وهاتف المدير
+            // الاستماع الفوري لأي تغيير يحدث في localStorage (مزامنة فورية بين هاتف الكاشير وهاتف الأدمين)
+            window.addEventListener('storage', (event) => {
+                if (event.key === 'casa_game_data_v9') {
+                    loadLocalStorageData();
+                    refreshActiveInterface();
+                }
+            });
+
+            // حلقة تحديث دورية لكل ثانية لضمان دقة المؤتات ومزامنة الأجهزة النشطة
             setInterval(() => {
                 loadLocalStorageData();
-                if (state.deviceRole === 'admin') {
-                    renderAdminDashboard();
-                } else {
-                    renderPostes();
-                    updateStatsUI();
-                }
+                refreshActiveInterface();
             }, 1000);
         };
 
+        function refreshActiveInterface() {
+            if (state.deviceRole === 'admin') {
+                renderAdminDashboard();
+            } else {
+                renderPostes();
+                updateStatsUI();
+            }
+        }
+
         function loadLocalStorageData() {
-            const saved = localStorage.getItem('casa_game_data_v8');
+            const saved = localStorage.getItem('casa_game_data_v9');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -599,7 +633,7 @@
         }
 
         function saveLocalStorageData() {
-            localStorage.setItem('casa_game_data_v8', JSON.stringify({
+            localStorage.setItem('casa_game_data_v9', JSON.stringify({
                 adminPin: state.adminPin,
                 sessionLogs: state.sessionLogs,
                 quickSnackEarnings: state.quickSnackEarnings,
@@ -639,7 +673,6 @@
             document.getElementById('entryModalDate').innerText = `تاريخ اليوم: ${today}`;
         }
 
-        // اختيار دور الجهاز عند الفتح (هاتف كاشير أو هاتف مدير)
         function selectDeviceRole(role) {
             state.deviceRole = role;
             const btnCashier = document.getElementById('roleCashierBtn');
@@ -672,7 +705,6 @@
                 errorElem.classList.add('hidden');
                 badge.innerText = "CASA GAME - ADMIN (HOME)";
                 
-                // إخفاء زر الكاشير وجعل هذا الهاتف مخصصاً للمدير فقط
                 document.getElementById('welcomeEntryModal').classList.add('hidden');
                 document.getElementById('cashierView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
@@ -702,6 +734,7 @@
 
         function renderGamesShowcase() {
             const container = document.getElementById('gamesShowcase');
+            if (!container) return;
             container.innerHTML = state.games.map(g => `
                 <div class="min-w-[115px] bg-black/80 border border-pink-500/30 rounded-2xl overflow-hidden flex-shrink-0 relative group">
                     <img src="${g.cover}" alt="${g.name}" class="w-full h-24 object-cover">
@@ -715,7 +748,10 @@
 
         function renderPostes() {
             const container = document.getElementById('devicesListContainer');
+            if (!container) return;
             container.innerHTML = '';
+
+            let hasAnyExpired = false;
 
             state.postes.forEach(poste => {
                 const card = document.createElement('div');
@@ -744,6 +780,32 @@
                     const frigouTotal = poste.snacks.reduce((a, b) => a + b.price, 0);
                     const grandTotal = matchPrice + frigouTotal;
 
+                    // حساب الوقت المتبقي بالاعتماد على التوقيت الحقيقي (Real Timestamp) لكي يكون دقيقاً ولا يتأثر بخروج المستخدم
+                    const nowSec = Math.floor(Date.now() / 1000);
+                    const elapsed = nowSec - poste.startTime;
+
+                    let timerText = "00:00";
+                    let isExpired = false;
+
+                    if (poste.preset === 'open') {
+                        const mins = Math.floor(elapsed / 60);
+                        const secs = elapsed % 60;
+                        timerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    } else {
+                        const totalAllowedSecs = poste.durationMinutes * 60;
+                        const remainingSecs = totalAllowedSecs - elapsed;
+
+                        if (remainingSecs <= 0) {
+                            timerText = "00:00 (انتهى الوقت!)";
+                            isExpired = true;
+                            hasAnyExpired = true;
+                        } else {
+                            const mins = Math.floor(remainingSecs / 60);
+                            const secs = remainingSecs % 60;
+                            timerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                        }
+                    }
+
                     innerHTML += `
                         <div class="flex justify-between items-center bg-black/80 p-2.5 rounded-xl border border-pink-500/30 my-2">
                             <div>
@@ -751,7 +813,7 @@
                                 <p class="text-[10px] text-slate-300">${getPresetLabel(poste.preset)}</p>
                             </div>
                             <div class="text-center bg-purple-950/90 px-3 py-1 rounded-xl border border-pink-500/50">
-                                <span id="timer-text-${poste.id}" class="font-game text-base font-black text-viceCyan">00:00</span>
+                                <span class="font-game text-base font-black ${isExpired ? 'text-red-400 animate-pulse' : 'text-viceCyan'}">${timerText}</span>
                             </div>
                         </div>
 
@@ -785,39 +847,21 @@
                 card.innerHTML = innerHTML;
                 container.appendChild(card);
             });
+
+            // تشغيل أو إيقاف المنبه المستمر إذا انتهى وقت أي جهاز
+            if (hasAnyExpired) {
+                startContinuousAlarm();
+            } else {
+                stopContinuousAlarm();
+            }
         }
 
-        setInterval(() => {
-            state.postes.forEach(poste => {
-                if (poste.active) {
-                    poste.elapsedSeconds++;
-                    const timerElem = document.getElementById(`timer-text-${poste.id}`);
-                    if (!timerElem) return;
-
-                    if (poste.preset === 'open') {
-                        const mins = Math.floor(poste.elapsedSeconds / 60);
-                        const secs = poste.elapsedSeconds % 60;
-                        timerElem.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                    } else {
-                        const totalAllowedSecs = poste.durationMinutes * 60;
-                        const remainingSecs = totalAllowedSecs - poste.elapsedSeconds;
-
-                        if (remainingSecs <= 0) {
-                            timerElem.innerText = "00:00 (انتهى!)";
-                            timerElem.classList.add('text-red-400', 'animate-pulse');
-                        } else {
-                            const mins = Math.floor(remainingSecs / 60);
-                            const secs = remainingSecs % 60;
-                            timerElem.innerText = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-                        }
-                    }
-                }
-            });
-        }, 1000);
-
         function calculatePostePrice(poste) {
+            const nowSec = Math.floor(Date.now() / 1000);
+            const elapsed = nowSec - poste.startTime;
+
             if (poste.preset === 'open') {
-                const mins = Math.ceil(poste.elapsedSeconds / 60);
+                const mins = Math.ceil(elapsed / 60);
                 const hourlyRate = state.presetPrices['open'] || 600;
                 const minRate = hourlyRate / 60;
                 return Math.max(50, Math.ceil(mins * minRate));
@@ -901,7 +945,7 @@
             poste.active = true;
             poste.game = game;
             poste.preset = preset;
-            poste.elapsedSeconds = 0;
+            poste.startTime = Math.floor(Date.now() / 1000); // اعتماد الطابع الزمني الحقيقي لتفادي تأخير العد التنازلي
             poste.durationMinutes = (preset === '1v1_extra' || preset === '2v2_extra') ? 10 : 7;
             poste.snacks = [];
 
@@ -913,6 +957,7 @@
 
         function renderQuickSnacks() {
             const container = document.getElementById('quickSnacksGrid');
+            if (!container) return;
             container.innerHTML = state.snacksMenu.map(s => `
                 <button onclick="buyQuickSnack(${s.id})" class="bg-black/80 hover:border-pink-500 border border-slate-800 p-2 rounded-xl text-right transition-all">
                     <p class="text-[10px] font-bold text-white truncate">${s.name}</p>
@@ -954,6 +999,7 @@
         }
 
         function finishPosteSession(posteId) {
+            stopContinuousAlarm(); // إيقاف المنبه فور إنهاء الجلسة
             const poste = state.postes.find(p => p.id === posteId);
             if (!poste) return;
 
@@ -1012,7 +1058,7 @@
             poste.active = false;
             poste.game = '';
             poste.preset = '';
-            poste.elapsedSeconds = 0;
+            poste.startTime = null;
             poste.snacks = [];
 
             saveLocalStorageData();
@@ -1065,52 +1111,60 @@
             if (grandElem) grandElem.innerText = `${historicalTotal} دج`;
 
             const gamesContainer = document.getElementById('adminGamesList');
-            gamesContainer.innerHTML = state.games.map((g, idx) => `
-                <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-cyan-500/20 text-xs">
-                    <div class="flex items-center gap-2">
-                        <img src="${g.cover}" class="w-8 h-8 rounded-lg object-cover">
-                        <span class="font-bold text-white">${g.name} (${g.category || 'PS5'})</span>
-                    </div>
-                    <button onclick="removeGameItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
-
-            const archiveContainer = document.getElementById('dailyArchiveLogs');
-            if (state.dailyArchive.length === 0) {
-                archiveContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد أرشيفات للأيام السابقة بعد</p>`;
-            } else {
-                archiveContainer.innerHTML = state.dailyArchive.map(item => `
-                    <div class="p-2.5 bg-black/80 rounded-xl border border-pink-500/20 flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-bold text-white font-game">${item.date}</p>
-                            <p class="text-[10px] text-slate-400">ألعاب: ${item.totalGames} دج | ثلاجة: ${item.totalSnacks} دج</p>
+            if (gamesContainer) {
+                gamesContainer.innerHTML = state.games.map((g, idx) => `
+                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-cyan-500/20 text-xs">
+                        <div class="flex items-center gap-2">
+                            <img src="${g.cover}" class="w-8 h-8 rounded-lg object-cover">
+                            <span class="font-bold text-white">${g.name} (${g.category || 'PS5'})</span>
                         </div>
-                        <span class="font-game font-black text-pink-400 text-sm">${item.grandTotal} دج</span>
+                        <button onclick="removeGameItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
             }
 
-            const snackContainer = document.getElementById('adminSnackList');
-            snackContainer.innerHTML = state.snacksMenu.map((s, idx) => `
-                <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/20 text-xs">
-                    <span class="font-bold text-white">${s.name} - <span class="text-pink-400 font-game">${s.price} دج</span></span>
-                    <button onclick="removeSnackItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
-                </div>
-            `).join('');
-
-            const logsContainer = document.getElementById('adminSessionLogs');
-            if (state.sessionLogs.length === 0) {
-                logsContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد سجلات معاملات اليوم</p>`;
-            } else {
-                logsContainer.innerHTML = state.sessionLogs.map(log => `
-                    <div class="p-2.5 bg-black/80 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
-                        <div>
-                            <p class="font-bold text-white">${log.posteName} - <span class="text-pink-400">${log.game}</span></p>
-                            <p class="text-[10px] text-slate-400">${log.timestamp} | ${log.preset}</p>
+            const archiveContainer = document.getElementById('dailyArchiveLogs');
+            if (archiveContainer) {
+                if (state.dailyArchive.length === 0) {
+                    archiveContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد أرشيفات للأيام السابقة بعد</p>`;
+                } else {
+                    archiveContainer.innerHTML = state.dailyArchive.map(item => `
+                        <div class="p-2.5 bg-black/80 rounded-xl border border-pink-500/20 flex justify-between items-center text-xs">
+                            <div>
+                                <p class="font-bold text-white font-game">${item.date}</p>
+                                <p class="text-[10px] text-slate-400">ألعاب: ${item.totalGames} دج | ثلاجة: ${item.totalSnacks} دج</p>
+                            </div>
+                            <span class="font-game font-black text-pink-400 text-sm">${item.grandTotal} دج</span>
                         </div>
-                        <span class="font-game font-bold text-viceCyan">${log.grandTotal} دج</span>
+                    `).join('');
+                }
+            }
+
+            const snackContainer = document.getElementById('adminSnackList');
+            if (snackContainer) {
+                snackContainer.innerHTML = state.snacksMenu.map((s, idx) => `
+                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/20 text-xs">
+                        <span class="font-bold text-white">${s.name} - <span class="text-pink-400 font-game">${s.price} دج</span></span>
+                        <button onclick="removeSnackItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
+            }
+
+            const logsContainer = document.getElementById('adminSessionLogs');
+            if (logsContainer) {
+                if (state.sessionLogs.length === 0) {
+                    logsContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد سجلات معاملات اليوم</p>`;
+                } else {
+                    logsContainer.innerHTML = state.sessionLogs.map(log => `
+                        <div class="p-2.5 bg-black/80 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                            <div>
+                                <p class="font-bold text-white">${log.posteName} - <span class="text-pink-400">${log.game}</span></p>
+                                <p class="text-[10px] text-slate-400">${log.timestamp} | ${log.preset}</p>
+                            </div>
+                            <span class="font-game font-bold text-viceCyan">${log.grandTotal} دج</span>
+                        </div>
+                    `).join('');
+                }
             }
         }
 
@@ -1197,6 +1251,7 @@
 
             const diff = actualCash - systemTotal;
             const resultElem = document.getElementById('reconDiffText');
+            if (!resultElem) return;
 
             if (diff === 0) {
                 resultElem.innerText = "متطابق 100% (0 دج)";
