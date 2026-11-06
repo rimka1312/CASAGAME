@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts: Orbitron + Cairo -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- Supabase JS Client -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <script>
         tailwind.config = {
@@ -496,6 +498,12 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
+        // Supabase Client Config
+        const SUPABASE_URL = 'https://qxghyvfivvcysqrwwjbg.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4Z2h5dmZpdnZjeXNxcnd3amJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MzI1ODMsImV4cCI6MjEwOTQwODU4M30.WNp1kAwVTpL0VQvFrTyLG8cr4t5iwdsrDbw1a6T9rfE';
+        const supabaseClient = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+        let isSyncing = false;
+
         let state = {
             adminPin: '1234',
             deviceRole: 'cashier', 
@@ -542,7 +550,6 @@
             return `${dd}/${mm}/${yyyy}`;
         }
 
-        // منبه متواصل لا يتوقف إلا بإغلاق الجلسة أو الضغط عليه
         function startContinuousAlarm() {
             if (alarmInterval) return;
             alarmInterval = setInterval(() => {
@@ -583,14 +590,60 @@
             document.getElementById('headerTodayDate').innerText = getFormattedTodayDate();
         }
 
+        async function fetchFromCloud() {
+            if (!supabaseClient) return;
+            try {
+                let { data } = await supabaseClient.from('casa_game_state').select('data').eq('id', 1).single();
+                if (data && data.data) {
+                    const parsed = data.data;
+                    state.adminPin = parsed.adminPin || '1234';
+                    state.sessionLogs = parsed.sessionLogs || [];
+                    state.quickSnackEarnings = parsed.quickSnackEarnings || 0;
+                    if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
+                    if (parsed.games) state.games = parsed.games;
+                    if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
+                    state.dailyArchive = parsed.dailyArchive || [];
+                    state.lastOpenedDate = parsed.lastOpenedDate || '';
+                    if (parsed.postes) state.postes = parsed.postes;
+                    
+                    localStorage.setItem('casa_game_data_v9', JSON.stringify(parsed));
+                    refreshActiveInterface();
+                }
+            } catch(e){}
+        }
+
         window.onload = function() {
             updateClockAndDate();
             setInterval(updateClockAndDate, 1000);
             loadLocalStorageData();
+            fetchFromCloud();
             checkNewDayAutoArchive();
             setupWelcomeModal();
             
-            // الاستماع الفوري لأي تغيير يحدث في localStorage (مزامنة فورية بين هاتف الكاشير وهاتف الأدمين)
+            // Supabase Realtime Channel
+            if (supabaseClient) {
+                supabaseClient
+                    .channel('public:casa_game_state')
+                    .on('postgres_changes', { event: '*', schema: 'public', table: 'casa_game_state' }, payload => {
+                        if (payload.new && payload.new.data) {
+                            const parsed = payload.new.data;
+                            state.adminPin = parsed.adminPin || '1234';
+                            state.sessionLogs = parsed.sessionLogs || [];
+                            state.quickSnackEarnings = parsed.quickSnackEarnings || 0;
+                            if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
+                            if (parsed.games) state.games = parsed.games;
+                            if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
+                            state.dailyArchive = parsed.dailyArchive || [];
+                            state.lastOpenedDate = parsed.lastOpenedDate || '';
+                            if (parsed.postes) state.postes = parsed.postes;
+                            
+                            localStorage.setItem('casa_game_data_v9', JSON.stringify(parsed));
+                            refreshActiveInterface();
+                        }
+                    })
+                    .subscribe();
+            }
+
             window.addEventListener('storage', (event) => {
                 if (event.key === 'casa_game_data_v9') {
                     loadLocalStorageData();
@@ -598,7 +651,6 @@
                 }
             });
 
-            // حلقة تحديث دورية لكل ثانية لضمان دقة المؤتات ومزامنة الأجهزة النشطة
             setInterval(() => {
                 loadLocalStorageData();
                 refreshActiveInterface();
@@ -632,8 +684,8 @@
             }
         }
 
-        function saveLocalStorageData() {
-            localStorage.setItem('casa_game_data_v9', JSON.stringify({
+        async function saveLocalStorageData() {
+            const dataToSave = {
                 adminPin: state.adminPin,
                 sessionLogs: state.sessionLogs,
                 quickSnackEarnings: state.quickSnackEarnings,
@@ -643,7 +695,20 @@
                 dailyArchive: state.dailyArchive,
                 lastOpenedDate: state.lastOpenedDate || getFormattedTodayDate(),
                 postes: state.postes
-            }));
+            };
+
+            localStorage.setItem('casa_game_data_v9', JSON.stringify(dataToSave));
+
+            if (supabaseClient && !isSyncing) {
+                isSyncing = true;
+                try {
+                    await supabaseClient.from('casa_game_state').upsert({ id: 1, data: dataToSave });
+                } catch(e) {
+                    console.error("Supabase Save Error:", e);
+                } finally {
+                    isSyncing = false;
+                }
+            }
         }
 
         function checkNewDayAutoArchive() {
@@ -780,7 +845,6 @@
                     const frigouTotal = poste.snacks.reduce((a, b) => a + b.price, 0);
                     const grandTotal = matchPrice + frigouTotal;
 
-                    // حساب الوقت المتبقي بالاعتماد على التوقيت الحقيقي (Real Timestamp) لكي يكون دقيقاً ولا يتأثر بخروج المستخدم
                     const nowSec = Math.floor(Date.now() / 1000);
                     const elapsed = nowSec - poste.startTime;
 
@@ -848,7 +912,6 @@
                 container.appendChild(card);
             });
 
-            // تشغيل أو إيقاف المنبه المستمر إذا انتهى وقت أي جهاز
             if (hasAnyExpired) {
                 startContinuousAlarm();
             } else {
@@ -945,7 +1008,7 @@
             poste.active = true;
             poste.game = game;
             poste.preset = preset;
-            poste.startTime = Math.floor(Date.now() / 1000); // اعتماد الطابع الزمني الحقيقي لتفادي تأخير العد التنازلي
+            poste.startTime = Math.floor(Date.now() / 1000);
             poste.durationMinutes = (preset === '1v1_extra' || preset === '2v2_extra') ? 10 : 7;
             poste.snacks = [];
 
@@ -999,7 +1062,7 @@
         }
 
         function finishPosteSession(posteId) {
-            stopContinuousAlarm(); // إيقاف المنبه فور إنهاء الجلسة
+            stopContinuousAlarm();
             const poste = state.postes.find(p => p.id === posteId);
             if (!poste) return;
 
