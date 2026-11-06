@@ -214,7 +214,6 @@
                         </button>
                     </div>
 
-                    <!-- Clear Database Except Password Button -->
                     <div class="synth-card p-4 rounded-2xl border-2 border-red-500/60 bg-red-950/20 flex justify-between items-center">
                         <div>
                             <p class="text-xs font-bold text-red-400">تفريغ شامل لقاعدة البيانات</p>
@@ -400,7 +399,6 @@
         </div>
     </div>
 
-    <!-- Modal Add Preset -->
     <div id="addNewPresetModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-amber-500/50">
             <h3 class="font-bold text-white">إضافة توقيت وتسعيرة جديدة</h3>
@@ -415,7 +413,6 @@
         </div>
     </div>
 
-    <!-- Modal Add Game -->
     <div id="addNewGameModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-cyan-500/50">
             <h3 class="font-bold text-white">إضافة لعبة جديدة مع صورة</h3>
@@ -434,7 +431,6 @@
         </div>
     </div>
 
-    <!-- Start Session Modal -->
     <div id="startSessionModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="synth-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 border border-pink-500/60 shadow-[0_0_30px_rgba(255,42,133,0.4)]">
             <div class="flex justify-between items-center border-b border-pink-500/30 pb-3">
@@ -469,7 +465,6 @@
         </div>
     </div>
 
-    <!-- Modal Frigou to Poste -->
     <div id="addSnackModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
         <div class="synth-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-5 space-y-3 border border-pink-500/50">
             <div class="flex justify-between items-center border-b border-pink-500/30 pb-2">
@@ -482,7 +477,6 @@
         </div>
     </div>
 
-    <!-- Ticket Bill Modal -->
     <div id="receiptTicketModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="ticket-border w-full max-w-xs rounded-3xl p-5 space-y-3 text-center shadow-[0_0_35px_rgba(255,42,133,0.6)]">
             <div class="border-b border-pink-500/40 pb-2">
@@ -505,7 +499,6 @@
         </div>
     </div>
 
-    <!-- Add New Snack Modal -->
     <div id="addNewSnackItemModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-purple-500/50">
             <h3 class="font-bold text-white">إضافة عنصر جديد وإدارة الكمية بالثلاجة</h3>
@@ -519,7 +512,7 @@
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC -->
+    <!-- JAVASCRIPT LOGIC (Cloud Only Sync) -->
     <script>
         const SUPABASE_URL = 'https://qxghyvfivvcysqrwwjbg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4Z2h5dmZpdnZjeXNxcnd3amJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MzI1ODMsImV4cCI6MjEwOTQwODU4M30.WNp1kAwVTpL0VQvFrTyLG8cr4t5iwdsrDbw1a6T9rfE';
@@ -530,12 +523,7 @@
             adminPin: '1234',
             deviceRole: 'cashier', 
             lastOpenedDate: '',
-            games: [
-                { id: 1, name: 'FIFA 26', category: 'كرة قدم', cover: 'https://images.unsplash.com/photo-1614680376593-902f749f705c?auto=format&fit=crop&w=300&q=80' },
-                { id: 2, name: 'PES 26', category: 'كرة قدم', cover: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?auto=format&fit=crop&w=300&q=80' },
-                { id: 3, name: 'GTA V', category: 'عالم مفتوح', cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=300&q=80' },
-                { id: 4, name: 'GTA VI', category: 'Vice City', cover: 'https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=300&q=80' }
-            ],
+            games: [],
             presetPrices: {
                 '1v1': 100,
                 '1v1_extra': 150,
@@ -550,13 +538,7 @@
                 { id: 3, name: 'Poste 03', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
                 { id: 4, name: 'Poste 04', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] }
             ],
-            snacksMenu: [
-                { id: 1, name: 'قهوة Espresso', price: 100, stock: 30 },
-                { id: 2, name: 'RedBull / طاقة', price: 300, stock: 15 },
-                { id: 3, name: 'مشروب غازي 33cl', price: 100, stock: 24 },
-                { id: 4, name: 'ماء معدني', price: 50, stock: 40 },
-                { id: 5, name: 'شيبس / Snacking', price: 150, stock: 20 }
-            ],
+            snacksMenu: [],
             sessionLogs: [],
             quickSnackEarnings: 0,
             dailyArchive: []
@@ -613,6 +595,7 @@
             document.getElementById('headerTodayDate').innerText = getFormattedTodayDate();
         }
 
+        // جلب البيانات حصرياً من Supabase (لا يتم حفظ أو قراءة من LocalStorage)
         async function fetchFromCloud() {
             if (!supabaseClient) return;
             try {
@@ -627,7 +610,7 @@
                 }
 
                 let { data: games } = await supabaseClient.from('casa_games').select('*');
-                if (games && games.length > 0) {
+                if (games) {
                     state.games = games.map(g => ({
                         id: g.id,
                         name: g.game_name,
@@ -637,7 +620,7 @@
                 }
 
                 let { data: snacks } = await supabaseClient.from('casa_snacks_menu').select('*');
-                if (snacks && snacks.length > 0) {
+                if (snacks) {
                     state.snacksMenu = snacks.map(s => ({
                         id: s.id,
                         name: s.snack_name,
@@ -680,75 +663,52 @@
             }
         }
 
-        async function saveLocalStorageData() {
-            const dataToSave = {
-                adminPin: state.adminPin,
-                sessionLogs: state.sessionLogs,
-                quickSnackEarnings: state.quickSnackEarnings,
-                snacksMenu: state.snacksMenu,
-                games: state.games,
-                presetPrices: state.presetPrices,
-                customPresets: state.customPresets,
-                dailyArchive: state.dailyArchive,
-                lastOpenedDate: state.lastOpenedDate || getFormattedTodayDate(),
-                postes: state.postes
-            };
-            localStorage.setItem('casa_game_data_v9', JSON.stringify(dataToSave));
+        // حفظ البيانات في Supabase حصرياً (Cloud Sync Only)
+        async function saveCloudData() {
+            if (!supabaseClient || isSyncing) return;
+            isSyncing = true;
+            try {
+                await supabaseClient.from('casa_settings').upsert({
+                    id: 1,
+                    admin_pin: state.adminPin,
+                    last_opened_date: state.lastOpenedDate,
+                    quick_snack_earnings: state.quickSnackEarnings,
+                    daily_archive: state.dailyArchive,
+                    preset_prices: state.presetPrices,
+                    custom_presets: state.customPresets,
+                    updated_at: new Date()
+                });
 
-            if (supabaseClient && !isSyncing) {
-                isSyncing = true;
-                try {
-                    await supabaseClient.from('casa_settings').upsert({
-                        id: 1,
-                        admin_pin: state.adminPin,
-                        last_opened_date: state.lastOpenedDate,
-                        quick_snack_earnings: state.quickSnackEarnings,
-                        daily_archive: state.dailyArchive,
-                        preset_prices: state.presetPrices,
-                        custom_presets: state.customPresets,
+                for (let p of state.postes) {
+                    await supabaseClient.from('casa_postes').upsert({
+                        id: p.id,
+                        poste_name: p.name,
+                        is_active: p.active,
+                        current_game: p.game,
+                        preset_type: p.preset,
+                        start_time: p.startTime,
+                        duration_minutes: p.durationMinutes,
+                        assigned_snacks: p.snacks,
                         updated_at: new Date()
                     });
-
-                    for (let p of state.postes) {
-                        await supabaseClient.from('casa_postes').upsert({
-                            id: p.id,
-                            poste_name: p.name,
-                            is_active: p.active,
-                            current_game: p.game,
-                            preset_type: p.preset,
-                            start_time: p.startTime,
-                            duration_minutes: p.durationMinutes,
-                            assigned_snacks: p.snacks,
-                            updated_at: new Date()
-                        });
-                    }
-                } catch(e) {
-                    console.error("Supabase Save Error:", e);
-                } finally {
-                    isSyncing = false;
                 }
+            } catch(e) {
+                console.error("Supabase Save Error:", e);
+            } finally {
+                isSyncing = false;
             }
         }
 
         window.onload = function() {
             updateClockAndDate();
             setInterval(updateClockAndDate, 1000);
-            loadLocalStorageData();
             fetchFromCloud();
-            checkNewDayAutoArchive();
             setupWelcomeModal();
             
-            window.addEventListener('storage', (event) => {
-                if (event.key === 'casa_game_data_v9') {
-                    loadLocalStorageData();
-                    refreshActiveInterface();
-                }
-            });
-
+            // مزامنة دورية جلب البيانات من السحاب لتبقى الأجهزة متحدثة بشكل آني
             setInterval(() => {
-                loadLocalStorageData();
-                refreshActiveInterface();
-            }, 1000);
+                fetchFromCloud();
+            }, 3000);
         };
 
         function refreshActiveInterface() {
@@ -759,47 +719,6 @@
                 renderQuickSnacks();
                 updateStatsUI();
             }
-        }
-
-        function loadLocalStorageData() {
-            const saved = localStorage.getItem('casa_game_data_v9');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    state.adminPin = parsed.adminPin || '1234';
-                    state.sessionLogs = parsed.sessionLogs || [];
-                    state.quickSnackEarnings = parsed.quickSnackEarnings || 0;
-                    if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
-                    if (parsed.games) state.games = parsed.games;
-                    if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
-                    if (parsed.customPresets) state.customPresets = parsed.customPresets;
-                    state.dailyArchive = parsed.dailyArchive || [];
-                    state.lastOpenedDate = parsed.lastOpenedDate || '';
-                    if (parsed.postes) state.postes = parsed.postes;
-                } catch(e){}
-            }
-        }
-
-        function checkNewDayAutoArchive() {
-            const today = getFormattedTodayDate();
-            if (state.lastOpenedDate && state.lastOpenedDate !== today) {
-                const prevGames = state.sessionLogs.reduce((acc, log) => acc + log.matchPrice, 0);
-                const prevSnacks = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
-                const prevTotal = prevGames + prevSnacks;
-
-                if (prevTotal > 0) {
-                    state.dailyArchive.unshift({
-                        date: state.lastOpenedDate,
-                        totalGames: prevGames,
-                        totalSnacks: prevSnacks,
-                        grandTotal: prevTotal
-                    });
-                    state.sessionLogs = [];
-                    state.quickSnackEarnings = 0;
-                }
-            }
-            state.lastOpenedDate = today;
-            saveLocalStorageData();
         }
 
         function setupWelcomeModal() {
@@ -1125,7 +1044,7 @@
 
             poste.snacks = [];
 
-            saveLocalStorageData();
+            saveCloudData();
             closeModal('startSessionModal');
             renderPostes();
             updateStatsUI();
@@ -1158,7 +1077,7 @@
                     await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
                 }
 
-                saveLocalStorageData();
+                saveCloudData();
                 renderQuickSnacks();
                 updateStatsUI();
             }
@@ -1195,7 +1114,7 @@
                     await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
                 }
 
-                saveLocalStorageData();
+                saveCloudData();
                 renderPostes();
                 closeModal('addSnackModal');
             }
@@ -1281,7 +1200,7 @@
             poste.startTime = null;
             poste.snacks = [];
 
-            saveLocalStorageData();
+            saveCloudData();
             renderPostes();
             updateStatsUI();
             document.getElementById('receiptTicketModal').classList.remove('hidden');
@@ -1408,12 +1327,10 @@
             }
         }
 
-        // دالة مسح كل البيانات ما عدا كلمة المرور
         async function clearDatabaseExceptPassword() {
             if (confirm("⚠️ تحذير خطير: هل أنت متأكد من رغبتك في حذف وتفريغ جميع بيانات الألعاب، المشروبات، الجلسات، والأرشيف؟\n\n(سيتم الاحتفاظ بكلمة مرور المدير فقط).")) {
-                const currentPin = state.adminPin; // الاحتفاظ بكلمة المرور الحالية
+                const currentPin = state.adminPin;
 
-                // إعادة الحالة الافتراضية مع الاحتفاظ بكلمة المرور فقط
                 state.games = [];
                 state.customPresets = [];
                 state.snacksMenu = [];
@@ -1427,10 +1344,8 @@
                     { id: 4, name: 'Poste 04', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] }
                 ];
 
-                // تفريغ قاعدة بيانات Supabase
                 if (supabaseClient) {
                     try {
-                        // تحديث جدول الإعدادات وإبقاء كلمة المرور وتصفير الباقي
                         await supabaseClient.from('casa_settings').upsert({
                             id: 1,
                             admin_pin: currentPin,
@@ -1441,16 +1356,10 @@
                             updated_at: new Date()
                         });
 
-                        // حذف جميع الألعاب
                         await supabaseClient.from('casa_games').delete().neq('id', 0);
-
-                        // حذف جميع عناصر الثلاجة والمشروبات
                         await supabaseClient.from('casa_snacks_menu').delete().neq('id', 0);
-
-                        // حذف سجلات الجلسات
                         await supabaseClient.from('casa_session_logs').delete().neq('id', 0);
 
-                        // إعادة ضبط الأجهزة في Supabase
                         for (let p of state.postes) {
                             await supabaseClient.from('casa_postes').upsert({
                                 id: p.id,
@@ -1469,18 +1378,17 @@
                     }
                 }
 
-                saveLocalStorageData();
                 renderAdminDashboard();
                 alert('✨ تم تفريغ قاعدة البيانات بالكامل بنجاح مع الاحتفاظ بكلمة مرور المدير فقط!');
             }
         }
 
-        function updateAdminPin() {
+        async function updateAdminPin() {
             const newPin = document.getElementById('newAdminPinInput').value.trim();
             if (newPin.length >= 4) {
                 state.adminPin = newPin;
-                saveLocalStorageData();
-                alert('تم تغيير كلمة المرور بنجاح!');
+                await saveCloudData();
+                alert('تم تغيير كلمة المرور بنجاح في قاعدة البيانات!');
                 document.getElementById('newAdminPinInput').value = '';
             } else {
                 alert('يرجى إدخال كلمة مرور تتكون من 4 أرقام/رموز على الأقل.');
@@ -1494,11 +1402,11 @@
             state.presetPrices['2v2_extra'] = parseFloat(document.getElementById('pricePreset2v2Extra').value) || 250;
             state.presetPrices['open'] = parseFloat(document.getElementById('pricePresetOpen').value) || 600;
 
-            saveLocalStorageData();
+            saveCloudData();
         }
 
         function openAddPresetModal() { document.getElementById('addNewPresetModal').classList.remove('hidden'); }
-        function saveNewPresetItem() {
+        async function saveNewPresetItem() {
             const label = document.getElementById('newPresetLabelInput').value.trim();
             const duration = parseInt(document.getElementById('newPresetDurationInput').value);
             const price = parseFloat(document.getElementById('newPresetPriceInput').value);
@@ -1510,7 +1418,7 @@
                     duration,
                     price
                 });
-                saveLocalStorageData();
+                await saveCloudData();
                 renderAdminDashboard();
                 closeModal('addNewPresetModal');
                 document.getElementById('newPresetLabelInput').value = '';
@@ -1519,9 +1427,9 @@
             }
         }
 
-        function removeCustomPreset(idx) {
+        async function removeCustomPreset(idx) {
             state.customPresets.splice(idx, 1);
-            saveLocalStorageData();
+            await saveCloudData();
             renderAdminDashboard();
         }
 
@@ -1560,7 +1468,6 @@
                 cover: coverUrl
             });
 
-            saveLocalStorageData();
             if (state.deviceRole === 'admin') renderAdminDashboard();
             else renderGamesShowcase();
             closeModal('addNewGameModal');
@@ -1575,7 +1482,6 @@
                 await supabaseClient.from('casa_games').delete().eq('id', gameToRemove.id);
             }
             state.games.splice(idx, 1);
-            saveLocalStorageData();
             renderAdminDashboard();
         }
 
@@ -1618,7 +1524,6 @@
                 }
 
                 state.snacksMenu.push({ id: Date.now(), name, price, stock });
-                saveLocalStorageData();
                 renderAdminDashboard();
                 closeModal('addNewSnackItemModal');
                 document.getElementById('newSnackNameInput').value = '';
@@ -1634,7 +1539,6 @@
                 if (supabaseClient && snack.id) {
                     await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
                 }
-                saveLocalStorageData();
             }
         }
 
@@ -1644,11 +1548,10 @@
                 await supabaseClient.from('casa_snacks_menu').delete().eq('id', snackToRemove.id);
             }
             state.snacksMenu.splice(idx, 1);
-            saveLocalStorageData();
             renderAdminDashboard();
         }
 
-        function archiveAndResetDay() {
+        async function archiveAndResetDay() {
             if (confirm("هل أنت تأكد من تصفير وأرشفة مداخيل اليوم؟ سيتم حفظ المجموع في السجل التراكمي للأيام السابقة.")) {
                 const matchIncome = state.sessionLogs.reduce((acc, log) => acc + log.matchPrice, 0);
                 const snackIncome = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
@@ -1665,7 +1568,7 @@
 
                 state.sessionLogs = [];
                 state.quickSnackEarnings = 0;
-                saveLocalStorageData();
+                await saveCloudData();
                 renderAdminDashboard();
             }
         }
