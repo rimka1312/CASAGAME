@@ -93,10 +93,8 @@
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
-    <!-- Container App Main Wrapper -->
     <div class="mobile-frame w-full custom-scrollbar">
 
-        <!-- Top Mobile Header & Status Bar -->
         <div class="bg-black/60 px-5 pt-3 pb-2 flex justify-between items-center text-[11px] border-b border-pink-500/30 font-game backdrop-blur-md sticky top-0 z-50">
             <div class="flex items-center gap-2">
                 <span id="currentTimeDisplay" class="text-viceCyan font-extrabold tracking-wider">12:00</span>
@@ -109,7 +107,6 @@
             </div>
         </div>
 
-        <!-- Banner Header -->
         <header class="relative px-4 pt-3 pb-4 bg-gradient-to-b from-purple-900/60 via-slate-950 to-transparent border-b border-pink-500/30 overflow-hidden">
             <div class="absolute inset-0 opacity-25 pointer-events-none flex justify-between items-center px-2">
                 <i class="fa-solid fa-tree-city text-6xl text-pink-500"></i>
@@ -147,10 +144,9 @@
             </div>
         </header>
 
-        <!-- Main Content Area -->
         <main class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar pb-24">
 
-            <!-- ================= CASHIER VIEW ================= -->
+            <!-- CASHIER VIEW -->
             <div id="cashierView" class="space-y-4">
                 <div class="grid grid-cols-2 gap-2.5">
                     <div class="synth-card p-3 rounded-2xl border-l-4 border-l-viceCyan flex items-center gap-3">
@@ -205,7 +201,7 @@
                 </div>
             </div>
 
-            <!-- ================= MANAGER VIEW ================= -->
+            <!-- MANAGER VIEW -->
             <div id="adminView" class="hidden space-y-4">
                 <div id="adminDashboardContent" class="space-y-4">
                     <div class="synth-card p-4 rounded-2xl flex justify-between items-center border border-pink-500/40">
@@ -218,7 +214,17 @@
                         </button>
                     </div>
 
-                    <!-- Grand Total Summary Banner -->
+                    <!-- Clear Database Except Password Button -->
+                    <div class="synth-card p-4 rounded-2xl border-2 border-red-500/60 bg-red-950/20 flex justify-between items-center">
+                        <div>
+                            <p class="text-xs font-bold text-red-400">تفريغ شامل لقاعدة البيانات</p>
+                            <p class="text-[10px] text-slate-400">حذف جميع البيانات، الألعاب، المشروبات، والجلسات (الاحتفاظ بكلمة المرور فقط)</p>
+                        </div>
+                        <button onclick="clearDatabaseExceptPassword()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
+                            <i class="fa-solid fa-triangle-exclamation ml-1"></i> مسح شامل لكل البيانات
+                        </button>
+                    </div>
+
                     <div class="synth-card p-4 rounded-2xl space-y-2 border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-950/40 to-slate-950">
                         <p class="text-xs text-slate-300 font-bold flex items-center gap-2">
                             <i class="fa-solid fa-chart-line text-pink-400"></i> المجموع الإجمالي التراكمي (كل الأيام)
@@ -228,7 +234,6 @@
                         </h2>
                     </div>
 
-                    <!-- Full Admin Settings: Change Password & Pricing -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border border-pink-500/40">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             <i class="fa-solid fa-key text-pink-400"></i> تغيير كلمة المرور وإعدادات الأمان
@@ -241,7 +246,6 @@
                         </div>
                     </div>
 
-                    <!-- Full Admin Settings: Games Management -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border border-cyan-500/40">
                         <div class="flex justify-between items-center">
                             <h3 class="text-xs font-black text-white flex items-center gap-2">
@@ -254,11 +258,16 @@
                         <div id="adminGamesList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <!-- Pricing Presets Setup -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border border-purple-500/40">
-                        <h3 class="text-xs font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-tags text-amber-400"></i> تسعيرة وتوقيت المباريات (دج)
-                        </h3>
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-xs font-black text-white flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-amber-400"></i> تسعيرة وتوقيت المباريات (دج)
+                            </h3>
+                            <button onclick="openAddPresetModal()" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-1 rounded-lg text-[10px] font-bold">
+                                + توقيت/تسعيرة جديدة
+                            </button>
+                        </div>
+                        
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <div>
                                 <label class="text-[10px] text-slate-400 block mb-1">1v1 (7 دقائق):</label>
@@ -281,9 +290,13 @@
                                 <input type="number" id="pricePresetOpen" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
                             </div>
                         </div>
+
+                        <div id="customPresetsContainer" class="pt-2 border-t border-purple-500/20 space-y-2">
+                            <p class="text-[10px] text-slate-400 font-bold">التسعيرات الإضافية المخصصة:</p>
+                            <div id="customPresetsList" class="space-y-1.5"></div>
+                        </div>
                     </div>
 
-                    <!-- Cash Reconciliation -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border-t-4 border-t-viceCyan">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             <i class="fa-solid fa-vault text-amber-400"></i> مطابقة الصندوق / الخزينة اليومية
@@ -311,7 +324,6 @@
                         </div>
                     </div>
 
-                    <!-- Archive History Logs -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border border-pink-500/40">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left text-viceCyan"></i> سجل مداخيل الأيام السابقة (الأرشيف)
@@ -319,11 +331,10 @@
                         <div id="dailyArchiveLogs" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <!-- Manage Menu Items -->
                     <div class="synth-card p-4 rounded-2xl space-y-3 border border-purple-500/40">
                         <div class="flex justify-between items-center border-b border-pink-500/20 pb-2">
                             <h3 class="text-xs font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-burger text-pink-400"></i> قائمة المشروبات والمأكولات
+                                <i class="fa-solid fa-burger text-pink-400"></i> قائمة المشروبات وتسيير المخزون
                             </h3>
                             <button onclick="openAddSnackModal()" class="bg-pink-500/20 text-pink-300 border border-pink-500/40 px-2 py-1 rounded-lg text-[10px] font-bold">
                                 + عنصر جديد
@@ -332,7 +343,6 @@
                         <div id="adminSnackList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <!-- Session Logs -->
                     <div class="synth-card p-4 rounded-2xl space-y-3">
                         <h3 class="text-xs font-black text-white flex items-center gap-2">
                             <i class="fa-solid fa-receipt text-viceCyan"></i> معاملات اليوم الحالية
@@ -343,15 +353,12 @@
             </div>
         </main>
 
-        <!-- Navigation Bar -->
         <nav id="appNavBar" class="absolute bottom-0 left-0 right-0 bg-black/90 border-t border-pink-500/40 px-8 py-3 flex justify-between items-center backdrop-blur-md z-40">
-            <!-- Dynamic Nav Buttons -->
         </nav>
     </div>
 
-    <!-- ================= MODALS & OVERLAYS ================= -->
+    <!-- MODALS -->
 
-    <!-- Welcome & Device Mode Selection Overlay -->
     <div id="welcomeEntryModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-sm rounded-3xl p-6 text-center space-y-5 border-2 border-pink-500 shadow-[0_0_50px_rgba(255,42,133,0.6)]">
             <div class="w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_25px_#00f0ff] p-0.5">
@@ -393,7 +400,22 @@
         </div>
     </div>
 
-    <!-- Modal Add Game with File Upload -->
+    <!-- Modal Add Preset -->
+    <div id="addNewPresetModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-amber-500/50">
+            <h3 class="font-bold text-white">إضافة توقيت وتسعيرة جديدة</h3>
+            <input type="text" id="newPresetLabelInput" placeholder="اسم الخيار (مثال: 3v3 أو 15 دقيقة)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+            <input type="number" id="newPresetDurationInput" placeholder="المدة بالدقائق (مثال: 15)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+            <input type="number" id="newPresetPriceInput" placeholder="السعر بالدينار دج..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+            
+            <div class="flex gap-2 pt-1">
+                <button onclick="closeModal('addNewPresetModal')" class="w-1/2 bg-slate-800 py-2 rounded-xl text-slate-300">إلغاء</button>
+                <button onclick="saveNewPresetItem()" class="w-1/2 bg-amber-500 text-slate-950 font-bold py-2 rounded-xl">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Add Game -->
     <div id="addNewGameModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-cyan-500/50">
             <h3 class="font-bold text-white">إضافة لعبة جديدة مع صورة</h3>
@@ -486,9 +508,10 @@
     <!-- Add New Snack Modal -->
     <div id="addNewSnackItemModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-purple-500/50">
-            <h3 class="font-bold text-white">إضافة عنصر جديد للثلاجة (FRIGOU)</h3>
+            <h3 class="font-bold text-white">إضافة عنصر جديد وإدارة الكمية بالثلاجة</h3>
             <input type="text" id="newSnackNameInput" placeholder="اسم المشروب / المأكولات..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
             <input type="number" id="newSnackPriceInput" placeholder="السعر بالدينار دج..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+            <input type="number" id="newSnackStockInput" placeholder="الكمية المتوفرة بالثلاجة (مثال: 20)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
             <div class="flex gap-2 pt-1">
                 <button onclick="closeModal('addNewSnackItemModal')" class="w-1/2 bg-slate-800 py-2 rounded-xl text-slate-300">إلغاء</button>
                 <button onclick="saveNewSnackItem()" class="w-1/2 bg-pink-500 text-white font-bold py-2 rounded-xl">حفظ</button>
@@ -498,7 +521,6 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // Supabase Client Config
         const SUPABASE_URL = 'https://qxghyvfivvcysqrwwjbg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4Z2h5dmZpdnZjeXNxcnd3amJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MzI1ODMsImV4cCI6MjEwOTQwODU4M30.WNp1kAwVTpL0VQvFrTyLG8cr4t5iwdsrDbw1a6T9rfE';
         const supabaseClient = (typeof supabase !== 'undefined') ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -521,6 +543,7 @@
                 '2v2_extra': 250,
                 'open': 600
             },
+            customPresets: [],
             postes: [
                 { id: 1, name: 'Poste 01', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
                 { id: 2, name: 'Poste 02', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
@@ -528,11 +551,11 @@
                 { id: 4, name: 'Poste 04', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] }
             ],
             snacksMenu: [
-                { id: 1, name: 'قهوة Espresso', price: 100 },
-                { id: 2, name: 'RedBull / طاقة', price: 300 },
-                { id: 3, name: 'مشروب غازي 33cl', price: 100 },
-                { id: 4, name: 'ماء معدني', price: 50 },
-                { id: 5, name: 'شيبس / Snacking', price: 150 }
+                { id: 1, name: 'قهوة Espresso', price: 100, stock: 30 },
+                { id: 2, name: 'RedBull / طاقة', price: 300, stock: 15 },
+                { id: 3, name: 'مشروب غازي 33cl', price: 100, stock: 24 },
+                { id: 4, name: 'ماء معدني', price: 50, stock: 40 },
+                { id: 5, name: 'شيبس / Snacking', price: 150, stock: 20 }
             ],
             sessionLogs: [],
             quickSnackEarnings: 0,
@@ -590,7 +613,6 @@
             document.getElementById('headerTodayDate').innerText = getFormattedTodayDate();
         }
 
-        // جلب البيانات من الجداول الموزعة في Supabase
         async function fetchFromCloud() {
             if (!supabaseClient) return;
             try {
@@ -601,6 +623,7 @@
                     state.quickSnackEarnings = parseFloat(settings.quick_snack_earnings) || 0;
                     state.dailyArchive = settings.daily_archive || [];
                     if (settings.preset_prices) state.presetPrices = settings.preset_prices;
+                    if (settings.custom_presets) state.customPresets = settings.custom_presets;
                 }
 
                 let { data: games } = await supabaseClient.from('casa_games').select('*');
@@ -618,7 +641,8 @@
                     state.snacksMenu = snacks.map(s => ({
                         id: s.id,
                         name: s.snack_name,
-                        price: parseFloat(s.price)
+                        price: parseFloat(s.price),
+                        stock: s.stock !== undefined ? parseInt(s.stock) : 0
                     }));
                 }
 
@@ -656,7 +680,6 @@
             }
         }
 
-        // الحفظ التحديثي في جداول Supabase المتعددة
         async function saveLocalStorageData() {
             const dataToSave = {
                 adminPin: state.adminPin,
@@ -665,6 +688,7 @@
                 snacksMenu: state.snacksMenu,
                 games: state.games,
                 presetPrices: state.presetPrices,
+                customPresets: state.customPresets,
                 dailyArchive: state.dailyArchive,
                 lastOpenedDate: state.lastOpenedDate || getFormattedTodayDate(),
                 postes: state.postes
@@ -681,6 +705,7 @@
                         quick_snack_earnings: state.quickSnackEarnings,
                         daily_archive: state.dailyArchive,
                         preset_prices: state.presetPrices,
+                        custom_presets: state.customPresets,
                         updated_at: new Date()
                     });
 
@@ -731,6 +756,7 @@
                 renderAdminDashboard();
             } else {
                 renderPostes();
+                renderQuickSnacks();
                 updateStatsUI();
             }
         }
@@ -746,6 +772,7 @@
                     if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
                     if (parsed.games) state.games = parsed.games;
                     if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
+                    if (parsed.customPresets) state.customPresets = parsed.customPresets;
                     state.dailyArchive = parsed.dailyArchive || [];
                     state.lastOpenedDate = parsed.lastOpenedDate || '';
                     if (parsed.postes) state.postes = parsed.postes;
@@ -971,7 +998,17 @@
                 const minRate = hourlyRate / 60;
                 return Math.max(50, Math.ceil(mins * minRate));
             }
-            return state.presetPrices[poste.preset] || 100;
+            
+            if (state.presetPrices[poste.preset]) {
+                return state.presetPrices[poste.preset];
+            }
+            
+            const custom = state.customPresets.find(cp => cp.id.toString() === poste.preset.toString());
+            if (custom) {
+                return custom.price;
+            }
+
+            return 100;
         }
 
         function getPresetLabel(preset) {
@@ -982,7 +1019,13 @@
                 '2v2_extra': `2v2 إضافي (10 دقائق - ${state.presetPrices['2v2_extra']} دج)`,
                 'open': 'وقت مفتوح'
             };
-            return labels[preset] || preset;
+
+            if (labels[preset]) return labels[preset];
+
+            const custom = state.customPresets.find(cp => cp.id.toString() === preset.toString());
+            if (custom) return `${custom.label} (${custom.duration} د - ${custom.price} دج)`;
+
+            return preset;
         }
 
         function openStartModal(posteId) {
@@ -994,7 +1037,8 @@
             gameSelect.innerHTML = state.games.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
 
             const presetsGrid = document.getElementById('modalPresetOptionsGrid');
-            presetsGrid.innerHTML = `
+            
+            let htmlOptions = `
                 <label class="cursor-pointer bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
                     <input type="radio" name="matchPreset" value="1v1" checked class="hidden peer">
                     <div class="peer-checked:text-viceCyan">
@@ -1023,6 +1067,21 @@
                         <p class="text-[10px] text-pink-400 font-game font-bold">${state.presetPrices['2v2_extra']} دج</p>
                     </div>
                 </label>
+            `;
+
+            state.customPresets.forEach(cp => {
+                htmlOptions += `
+                    <label class="cursor-pointer bg-black/70 border border-amber-500/40 p-2.5 rounded-xl flex justify-between items-center hover:border-amber-400">
+                        <input type="radio" name="matchPreset" value="${cp.id}" class="hidden peer">
+                        <div class="peer-checked:text-amber-300">
+                            <p class="font-bold text-[11px]">${cp.label} (${cp.duration} د)</p>
+                            <p class="text-[10px] text-amber-400 font-game font-bold">${cp.price} دج</p>
+                        </div>
+                    </label>
+                `;
+            });
+
+            htmlOptions += `
                 <label class="cursor-pointer col-span-2 bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
                     <input type="radio" name="matchPreset" value="open" class="hidden peer">
                     <div class="peer-checked:text-viceCyan">
@@ -1033,6 +1092,7 @@
                 </label>
             `;
 
+            presetsGrid.innerHTML = htmlOptions;
             document.getElementById('startSessionModal').classList.remove('hidden');
         }
 
@@ -1051,7 +1111,18 @@
             poste.game = game;
             poste.preset = preset;
             poste.startTime = Math.floor(Date.now() / 1000);
-            poste.durationMinutes = (preset === '1v1_extra' || preset === '2v2_extra') ? 10 : 7;
+
+            if (preset === '1v1_extra' || preset === '2v2_extra') {
+                poste.durationMinutes = 10;
+            } else if (preset === '1v1' || preset === '2v2') {
+                poste.durationMinutes = 7;
+            } else if (preset === 'open') {
+                poste.durationMinutes = 0;
+            } else {
+                const custom = state.customPresets.find(cp => cp.id.toString() === preset.toString());
+                poste.durationMinutes = custom ? custom.duration : 7;
+            }
+
             poste.snacks = [];
 
             saveLocalStorageData();
@@ -1063,19 +1134,32 @@
         function renderQuickSnacks() {
             const container = document.getElementById('quickSnacksGrid');
             if (!container) return;
-            container.innerHTML = state.snacksMenu.map(s => `
-                <button onclick="buyQuickSnack(${s.id})" class="bg-black/80 hover:border-pink-500 border border-slate-800 p-2 rounded-xl text-right transition-all">
-                    <p class="text-[10px] font-bold text-white truncate">${s.name}</p>
-                    <p class="text-[10px] font-black text-pink-400 font-game">${s.price} دج</p>
-                </button>
-            `).join('');
+            container.innerHTML = state.snacksMenu.map(s => {
+                const isOutOfStock = s.stock <= 0;
+                return `
+                    <button onclick="${isOutOfStock ? '' : `buyQuickSnack(${s.id})`}" class="${isOutOfStock ? 'opacity-40 bg-red-950/20 border-red-900 cursor-not-allowed' : 'bg-black/80 hover:border-pink-500 border-slate-800'} border p-2 rounded-xl text-right transition-all">
+                        <p class="text-[10px] font-bold text-white truncate">${s.name}</p>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[10px] font-black text-pink-400 font-game">${s.price} دج</span>
+                            <span class="text-[9px] ${isOutOfStock ? 'text-red-400 font-bold' : 'text-slate-400'}">${isOutOfStock ? 'نفذت' : `x${s.stock}`}</span>
+                        </div>
+                    </button>
+                `;
+            }).join('');
         }
 
-        function buyQuickSnack(snackId) {
+        async function buyQuickSnack(snackId) {
             const snack = state.snacksMenu.find(s => s.id === snackId);
-            if (snack) {
+            if (snack && snack.stock > 0) {
+                snack.stock -= 1;
                 state.quickSnackEarnings += snack.price;
+
+                if (supabaseClient) {
+                    await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
+                }
+
                 saveLocalStorageData();
+                renderQuickSnacks();
                 updateStatsUI();
             }
         }
@@ -1083,20 +1167,34 @@
         function openAddSnackModalToPoste(posteId) {
             document.getElementById('targetPosteIdForSnack').value = posteId;
             const container = document.getElementById('snackSelectionList');
-            container.innerHTML = state.snacksMenu.map(s => `
-                <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/30 text-xs">
-                    <span class="font-bold text-white">${s.name} (${s.price} دج)</span>
-                    <button onclick="addSnackToPoste(${posteId}, ${s.id})" class="bg-pink-500 text-white text-[10px] px-2.5 py-1 rounded-lg font-bold">+ إضافة</button>
-                </div>
-            `).join('');
+            container.innerHTML = state.snacksMenu.map(s => {
+                const isOutOfStock = s.stock <= 0;
+                return `
+                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/30 text-xs">
+                        <div>
+                            <span class="font-bold text-white">${s.name} (${s.price} دج)</span>
+                            <span class="text-[10px] ${isOutOfStock ? 'text-red-400 font-bold' : 'text-slate-400'} block">المتبقي: ${s.stock}</span>
+                        </div>
+                        <button onclick="${isOutOfStock ? '' : `addSnackToPoste(${posteId}, ${s.id})`}" class="${isOutOfStock ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-pink-500 text-white'} text-[10px] px-2.5 py-1 rounded-lg font-bold">
+                            ${isOutOfStock ? 'منتهي' : '+ إضافة'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
             document.getElementById('addSnackModal').classList.remove('hidden');
         }
 
-        function addSnackToPoste(posteId, snackId) {
+        async function addSnackToPoste(posteId, snackId) {
             const poste = state.postes.find(p => p.id === posteId);
             const snack = state.snacksMenu.find(s => s.id === snackId);
-            if (poste && snack) {
+            if (poste && snack && snack.stock > 0) {
+                snack.stock -= 1;
                 poste.snacks.push({...snack});
+
+                if (supabaseClient) {
+                    await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
+                }
+
                 saveLocalStorageData();
                 renderPostes();
                 closeModal('addSnackModal');
@@ -1126,7 +1224,6 @@
 
             state.sessionLogs.unshift(sessionRecord);
 
-            // حفظ المعاملة في جدول casa_session_logs في Supabase مباشرة
             if (supabaseClient) {
                 try {
                     await supabaseClient.from('casa_session_logs').insert({
@@ -1222,6 +1319,20 @@
             const po = document.getElementById('pricePresetOpen');
             if (po && document.activeElement !== po) po.value = state.presetPrices['open'] || 600;
 
+            const customList = document.getElementById('customPresetsList');
+            if (customList) {
+                if (state.customPresets.length === 0) {
+                    customList.innerHTML = `<p class="text-[9px] text-slate-500">لا توجد تسعيرات مخصصة بعد</p>`;
+                } else {
+                    customList.innerHTML = state.customPresets.map((cp, idx) => `
+                        <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-amber-500/20 text-xs">
+                            <span class="font-bold text-white">${cp.label} (${cp.duration} دقيقة) - <span class="text-amber-400 font-game">${cp.price} دج</span></span>
+                            <button onclick="removeCustomPreset(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
+                    `).join('');
+                }
+            }
+
             const matchIncome = state.sessionLogs.reduce((acc, log) => acc + log.matchPrice, 0);
             const snackIncome = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
             const totalIncome = matchIncome + snackIncome;
@@ -1267,8 +1378,14 @@
             if (snackContainer) {
                 snackContainer.innerHTML = state.snacksMenu.map((s, idx) => `
                     <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/20 text-xs">
-                        <span class="font-bold text-white">${s.name} - <span class="text-pink-400 font-game">${s.price} دج</span></span>
-                        <button onclick="removeSnackItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <div>
+                            <span class="font-bold text-white">${s.name} - <span class="text-pink-400 font-game">${s.price} دج</span></span>
+                            <span class="text-[10px] text-slate-400 block">المخزون المتوفر: <strong class="text-viceCyan">${s.stock}</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <input type="number" value="${s.stock}" onchange="updateSnackStock(${idx}, this.value)" class="w-14 bg-black border border-slate-700 rounded-lg p-1 text-center text-xs text-white">
+                            <button onclick="removeSnackItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        </div>
                     </div>
                 `).join('');
             }
@@ -1288,6 +1405,73 @@
                         </div>
                     `).join('');
                 }
+            }
+        }
+
+        // دالة مسح كل البيانات ما عدا كلمة المرور
+        async function clearDatabaseExceptPassword() {
+            if (confirm("⚠️ تحذير خطير: هل أنت متأكد من رغبتك في حذف وتفريغ جميع بيانات الألعاب، المشروبات، الجلسات، والأرشيف؟\n\n(سيتم الاحتفاظ بكلمة مرور المدير فقط).")) {
+                const currentPin = state.adminPin; // الاحتفاظ بكلمة المرور الحالية
+
+                // إعادة الحالة الافتراضية مع الاحتفاظ بكلمة المرور فقط
+                state.games = [];
+                state.customPresets = [];
+                state.snacksMenu = [];
+                state.sessionLogs = [];
+                state.quickSnackEarnings = 0;
+                state.dailyArchive = [];
+                state.postes = [
+                    { id: 1, name: 'Poste 01', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                    { id: 2, name: 'Poste 02', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                    { id: 3, name: 'Poste 03', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] },
+                    { id: 4, name: 'Poste 04', active: false, game: '', preset: '', startTime: null, durationMinutes: 7, snacks: [] }
+                ];
+
+                // تفريغ قاعدة بيانات Supabase
+                if (supabaseClient) {
+                    try {
+                        // تحديث جدول الإعدادات وإبقاء كلمة المرور وتصفير الباقي
+                        await supabaseClient.from('casa_settings').upsert({
+                            id: 1,
+                            admin_pin: currentPin,
+                            last_opened_date: getFormattedTodayDate(),
+                            quick_snack_earnings: 0,
+                            daily_archive: [],
+                            custom_presets: [],
+                            updated_at: new Date()
+                        });
+
+                        // حذف جميع الألعاب
+                        await supabaseClient.from('casa_games').delete().neq('id', 0);
+
+                        // حذف جميع عناصر الثلاجة والمشروبات
+                        await supabaseClient.from('casa_snacks_menu').delete().neq('id', 0);
+
+                        // حذف سجلات الجلسات
+                        await supabaseClient.from('casa_session_logs').delete().neq('id', 0);
+
+                        // إعادة ضبط الأجهزة في Supabase
+                        for (let p of state.postes) {
+                            await supabaseClient.from('casa_postes').upsert({
+                                id: p.id,
+                                poste_name: p.name,
+                                is_active: false,
+                                current_game: '',
+                                preset_type: '',
+                                start_time: null,
+                                duration_minutes: 7,
+                                assigned_snacks: [],
+                                updated_at: new Date()
+                            });
+                        }
+                    } catch(e) {
+                        console.error("Error clearing database:", e);
+                    }
+                }
+
+                saveLocalStorageData();
+                renderAdminDashboard();
+                alert('✨ تم تفريغ قاعدة البيانات بالكامل بنجاح مع الاحتفاظ بكلمة مرور المدير فقط!');
             }
         }
 
@@ -1311,6 +1495,34 @@
             state.presetPrices['open'] = parseFloat(document.getElementById('pricePresetOpen').value) || 600;
 
             saveLocalStorageData();
+        }
+
+        function openAddPresetModal() { document.getElementById('addNewPresetModal').classList.remove('hidden'); }
+        function saveNewPresetItem() {
+            const label = document.getElementById('newPresetLabelInput').value.trim();
+            const duration = parseInt(document.getElementById('newPresetDurationInput').value);
+            const price = parseFloat(document.getElementById('newPresetPriceInput').value);
+
+            if (label && duration > 0 && price >= 0) {
+                state.customPresets.push({
+                    id: Date.now(),
+                    label,
+                    duration,
+                    price
+                });
+                saveLocalStorageData();
+                renderAdminDashboard();
+                closeModal('addNewPresetModal');
+                document.getElementById('newPresetLabelInput').value = '';
+                document.getElementById('newPresetDurationInput').value = '';
+                document.getElementById('newPresetPriceInput').value = '';
+            }
+        }
+
+        function removeCustomPreset(idx) {
+            state.customPresets.splice(idx, 1);
+            saveLocalStorageData();
+            renderAdminDashboard();
         }
 
         function openAddGameModal() { document.getElementById('addNewGameModal').classList.remove('hidden'); }
@@ -1394,21 +1606,35 @@
         async function saveNewSnackItem() {
             const name = document.getElementById('newSnackNameInput').value.trim();
             const price = parseFloat(document.getElementById('newSnackPriceInput').value);
+            const stock = parseInt(document.getElementById('newSnackStockInput').value) || 0;
 
             if (name && price > 0) {
                 if (supabaseClient) {
                     await supabaseClient.from('casa_snacks_menu').insert({
                         snack_name: name,
-                        price: price
+                        price: price,
+                        stock: stock
                     });
                 }
 
-                state.snacksMenu.push({ id: Date.now(), name, price });
+                state.snacksMenu.push({ id: Date.now(), name, price, stock });
                 saveLocalStorageData();
                 renderAdminDashboard();
                 closeModal('addNewSnackItemModal');
                 document.getElementById('newSnackNameInput').value = '';
                 document.getElementById('newSnackPriceInput').value = '';
+                document.getElementById('newSnackStockInput').value = '';
+            }
+        }
+
+        async function updateSnackStock(idx, newStockVal) {
+            const snack = state.snacksMenu[idx];
+            if (snack) {
+                snack.stock = parseInt(newStockVal) || 0;
+                if (supabaseClient && snack.id) {
+                    await supabaseClient.from('casa_snacks_menu').update({ stock: snack.stock }).eq('id', snack.id);
+                }
+                saveLocalStorageData();
             }
         }
 
