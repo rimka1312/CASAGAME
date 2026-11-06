@@ -590,26 +590,119 @@
             document.getElementById('headerTodayDate').innerText = getFormattedTodayDate();
         }
 
+        // جلب البيانات من الجداول الموزعة في Supabase
         async function fetchFromCloud() {
             if (!supabaseClient) return;
             try {
-                let { data } = await supabaseClient.from('casa_game_state').select('data').eq('id', 1).single();
-                if (data && data.data) {
-                    const parsed = data.data;
-                    state.adminPin = parsed.adminPin || '1234';
-                    state.sessionLogs = parsed.sessionLogs || [];
-                    state.quickSnackEarnings = parsed.quickSnackEarnings || 0;
-                    if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
-                    if (parsed.games) state.games = parsed.games;
-                    if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
-                    state.dailyArchive = parsed.dailyArchive || [];
-                    state.lastOpenedDate = parsed.lastOpenedDate || '';
-                    if (parsed.postes) state.postes = parsed.postes;
-                    
-                    localStorage.setItem('casa_game_data_v9', JSON.stringify(parsed));
-                    refreshActiveInterface();
+                let { data: settings } = await supabaseClient.from('casa_settings').select('*').eq('id', 1).single();
+                if (settings) {
+                    state.adminPin = settings.admin_pin || '1234';
+                    state.lastOpenedDate = settings.last_opened_date || '';
+                    state.quickSnackEarnings = parseFloat(settings.quick_snack_earnings) || 0;
+                    state.dailyArchive = settings.daily_archive || [];
+                    if (settings.preset_prices) state.presetPrices = settings.preset_prices;
                 }
-            } catch(e){}
+
+                let { data: games } = await supabaseClient.from('casa_games').select('*');
+                if (games && games.length > 0) {
+                    state.games = games.map(g => ({
+                        id: g.id,
+                        name: g.game_name,
+                        category: g.category,
+                        cover: g.cover_url
+                    }));
+                }
+
+                let { data: snacks } = await supabaseClient.from('casa_snacks_menu').select('*');
+                if (snacks && snacks.length > 0) {
+                    state.snacksMenu = snacks.map(s => ({
+                        id: s.id,
+                        name: s.snack_name,
+                        price: parseFloat(s.price)
+                    }));
+                }
+
+                let { data: postes } = await supabaseClient.from('casa_postes').select('*').order('id', { ascending: true });
+                if (postes && postes.length > 0) {
+                    state.postes = postes.map(p => ({
+                        id: p.id,
+                        name: p.poste_name,
+                        active: p.is_active,
+                        game: p.current_game || '',
+                        preset: p.preset_type || '',
+                        startTime: p.start_time ? parseInt(p.start_time) : null,
+                        durationMinutes: p.duration_minutes || 7,
+                        snacks: p.assigned_snacks || []
+                    }));
+                }
+
+                let { data: logs } = await supabaseClient.from('casa_session_logs').select('*').order('id', { ascending: false });
+                if (logs) {
+                    state.sessionLogs = logs.map(l => ({
+                        id: l.id,
+                        posteName: l.poste_name,
+                        game: l.game_name,
+                        preset: l.preset_label,
+                        matchPrice: parseFloat(l.match_price),
+                        frigouPrice: parseFloat(l.frigou_price),
+                        grandTotal: parseFloat(l.grand_total),
+                        timestamp: l.session_timestamp
+                    }));
+                }
+
+                refreshActiveInterface();
+            } catch(e) {
+                console.error("Fetch from cloud error:", e);
+            }
+        }
+
+        // الحفظ التحديثي في جداول Supabase المتعددة
+        async function saveLocalStorageData() {
+            const dataToSave = {
+                adminPin: state.adminPin,
+                sessionLogs: state.sessionLogs,
+                quickSnackEarnings: state.quickSnackEarnings,
+                snacksMenu: state.snacksMenu,
+                games: state.games,
+                presetPrices: state.presetPrices,
+                dailyArchive: state.dailyArchive,
+                lastOpenedDate: state.lastOpenedDate || getFormattedTodayDate(),
+                postes: state.postes
+            };
+            localStorage.setItem('casa_game_data_v9', JSON.stringify(dataToSave));
+
+            if (supabaseClient && !isSyncing) {
+                isSyncing = true;
+                try {
+                    await supabaseClient.from('casa_settings').upsert({
+                        id: 1,
+                        admin_pin: state.adminPin,
+                        last_opened_date: state.lastOpenedDate,
+                        quick_snack_earnings: state.quickSnackEarnings,
+                        daily_archive: state.dailyArchive,
+                        preset_prices: state.presetPrices,
+                        updated_at: new Date()
+                    });
+
+                    for (let p of state.postes) {
+                        await supabaseClient.from('casa_postes').upsert({
+                            id: p.id,
+                            poste_name: p.name,
+                            is_active: p.active,
+                            current_game: p.game,
+                            preset_type: p.preset,
+                            start_time: p.startTime,
+                            duration_minutes: p.durationMinutes,
+                            assigned_snacks: p.snacks,
+                            updated_at: new Date()
+                        });
+                    }
+                } catch(e) {
+                    console.error("Supabase Save Error:", e);
+                } finally {
+                    isSyncing = false;
+                }
+            }
         }
 
         window.onload = function() {
@@ -620,30 +713,6 @@
             checkNewDayAutoArchive();
             setupWelcomeModal();
             
-            // Supabase Realtime Channel
-            if (supabaseClient) {
-                supabaseClient
-                    .channel('public:casa_game_state')
-                    .on('postgres_changes', { event: '*', schema: 'public', table: 'casa_game_state' }, payload => {
-                        if (payload.new && payload.new.data) {
-                            const parsed = payload.new.data;
-                            state.adminPin = parsed.adminPin || '1234';
-                            state.sessionLogs = parsed.sessionLogs || [];
-                            state.quickSnackEarnings = parsed.quickSnackEarnings || 0;
-                            if (parsed.snacksMenu) state.snacksMenu = parsed.snacksMenu;
-                            if (parsed.games) state.games = parsed.games;
-                            if (parsed.presetPrices) state.presetPrices = parsed.presetPrices;
-                            state.dailyArchive = parsed.dailyArchive || [];
-                            state.lastOpenedDate = parsed.lastOpenedDate || '';
-                            if (parsed.postes) state.postes = parsed.postes;
-                            
-                            localStorage.setItem('casa_game_data_v9', JSON.stringify(parsed));
-                            refreshActiveInterface();
-                        }
-                    })
-                    .subscribe();
-            }
-
             window.addEventListener('storage', (event) => {
                 if (event.key === 'casa_game_data_v9') {
                     loadLocalStorageData();
@@ -681,33 +750,6 @@
                     state.lastOpenedDate = parsed.lastOpenedDate || '';
                     if (parsed.postes) state.postes = parsed.postes;
                 } catch(e){}
-            }
-        }
-
-        async function saveLocalStorageData() {
-            const dataToSave = {
-                adminPin: state.adminPin,
-                sessionLogs: state.sessionLogs,
-                quickSnackEarnings: state.quickSnackEarnings,
-                snacksMenu: state.snacksMenu,
-                games: state.games,
-                presetPrices: state.presetPrices,
-                dailyArchive: state.dailyArchive,
-                lastOpenedDate: state.lastOpenedDate || getFormattedTodayDate(),
-                postes: state.postes
-            };
-
-            localStorage.setItem('casa_game_data_v9', JSON.stringify(dataToSave));
-
-            if (supabaseClient && !isSyncing) {
-                isSyncing = true;
-                try {
-                    await supabaseClient.from('casa_game_state').upsert({ id: 1, data: dataToSave });
-                } catch(e) {
-                    console.error("Supabase Save Error:", e);
-                } finally {
-                    isSyncing = false;
-                }
             }
         }
 
@@ -1061,7 +1103,7 @@
             }
         }
 
-        function finishPosteSession(posteId) {
+        async function finishPosteSession(posteId) {
             stopContinuousAlarm();
             const poste = state.postes.find(p => p.id === posteId);
             if (!poste) return;
@@ -1069,6 +1111,7 @@
             const matchPrice = calculatePostePrice(poste);
             const frigouPrice = poste.snacks.reduce((a,b) => a + b.price, 0);
             const grandTotal = matchPrice + frigouPrice;
+            const timestampStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
 
             const sessionRecord = {
                 id: Date.now(),
@@ -1078,10 +1121,27 @@
                 matchPrice,
                 frigouPrice,
                 grandTotal,
-                timestamp: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
+                timestamp: timestampStr
             };
 
             state.sessionLogs.unshift(sessionRecord);
+
+            // حفظ المعاملة في جدول casa_session_logs في Supabase مباشرة
+            if (supabaseClient) {
+                try {
+                    await supabaseClient.from('casa_session_logs').insert({
+                        poste_name: poste.name,
+                        game_name: poste.game,
+                        preset_label: getPresetLabel(poste.preset),
+                        match_price: matchPrice,
+                        frigou_price: frigouPrice,
+                        grand_total: grandTotal,
+                        session_timestamp: timestampStr
+                    });
+                } catch(e) {
+                    console.error("Error inserting session log:", e);
+                }
+            }
 
             const ticketBody = document.getElementById('ticketReceiptBody');
             ticketBody.innerHTML = `
@@ -1255,7 +1315,7 @@
 
         function openAddGameModal() { document.getElementById('addNewGameModal').classList.remove('hidden'); }
         
-        function saveNewGameItem() {
+        async function saveNewGameItem() {
             const name = document.getElementById('newGameNameInput').value.trim();
             const category = document.getElementById('newGameCategoryInput').value.trim();
             const fileInput = document.getElementById('newGameImageFile');
@@ -1265,42 +1325,43 @@
                 return;
             }
 
-            if (fileInput.files && fileInput.files[0]) {
+            const coverUrl = (fileInput.files && fileInput.files[0]) ? await new Promise((resolve) => {
                 const reader = new FileReader();
-                reader.onload = function(e) {
-                    const coverBase64 = e.target.result;
-                    state.games.push({
-                        id: Date.now(),
-                        name,
-                        category: category || 'PS5',
-                        cover: coverBase64
-                    });
-                    saveLocalStorageData();
-                    if (state.deviceRole === 'admin') renderAdminDashboard();
-                    else renderGamesShowcase();
-                    closeModal('addNewGameModal');
-                    document.getElementById('newGameNameInput').value = '';
-                    document.getElementById('newGameCategoryInput').value = '';
-                    fileInput.value = '';
-                };
+                reader.onload = (e) => resolve(e.target.result);
                 reader.readAsDataURL(fileInput.files[0]);
-            } else {
-                state.games.push({
-                    id: Date.now(),
-                    name,
-                    category: category || 'PS5',
-                    cover: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=300&q=80'
-                });
-                saveLocalStorageData();
-                if (state.deviceRole === 'admin') renderAdminDashboard();
-                else renderGamesShowcase();
-                closeModal('addNewGameModal');
-                document.getElementById('newGameNameInput').value = '';
-                document.getElementById('newGameCategoryInput').value = '';
+            }) : 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=300&q=80';
+
+            const newGameObj = {
+                game_name: name,
+                category: category || 'PS5',
+                cover_url: coverUrl
+            };
+
+            if (supabaseClient) {
+                await supabaseClient.from('casa_games').insert(newGameObj);
             }
+
+            state.games.push({
+                id: Date.now(),
+                name,
+                category: category || 'PS5',
+                cover: coverUrl
+            });
+
+            saveLocalStorageData();
+            if (state.deviceRole === 'admin') renderAdminDashboard();
+            else renderGamesShowcase();
+            closeModal('addNewGameModal');
+            document.getElementById('newGameNameInput').value = '';
+            document.getElementById('newGameCategoryInput').value = '';
+            fileInput.value = '';
         }
 
-        function removeGameItem(idx) {
+        async function removeGameItem(idx) {
+            const gameToRemove = state.games[idx];
+            if (supabaseClient && gameToRemove.id) {
+                await supabaseClient.from('casa_games').delete().eq('id', gameToRemove.id);
+            }
             state.games.splice(idx, 1);
             saveLocalStorageData();
             renderAdminDashboard();
@@ -1329,19 +1390,33 @@
         }
 
         function openAddSnackModal() { document.getElementById('addNewSnackItemModal').classList.remove('hidden'); }
-        function saveNewSnackItem() {
+        
+        async function saveNewSnackItem() {
             const name = document.getElementById('newSnackNameInput').value.trim();
             const price = parseFloat(document.getElementById('newSnackPriceInput').value);
 
             if (name && price > 0) {
+                if (supabaseClient) {
+                    await supabaseClient.from('casa_snacks_menu').insert({
+                        snack_name: name,
+                        price: price
+                    });
+                }
+
                 state.snacksMenu.push({ id: Date.now(), name, price });
                 saveLocalStorageData();
                 renderAdminDashboard();
                 closeModal('addNewSnackItemModal');
+                document.getElementById('newSnackNameInput').value = '';
+                document.getElementById('newSnackPriceInput').value = '';
             }
         }
 
-        function removeSnackItem(idx) {
+        async function removeSnackItem(idx) {
+            const snackToRemove = state.snacksMenu[idx];
+            if (supabaseClient && snackToRemove.id) {
+                await supabaseClient.from('casa_snacks_menu').delete().eq('id', snackToRemove.id);
+            }
             state.snacksMenu.splice(idx, 1);
             saveLocalStorageData();
             renderAdminDashboard();
