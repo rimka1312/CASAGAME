@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Télécharger Casa Game - APK Android</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #05030F;
+            color: #F5F6FF;
+        }
+        .font-game { font-family: 'Orbitron', sans-serif; }
+        .signature-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #D946EF 100%);
+        }
+        .neon-glow {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.45);
+        }
+        .synth-card {
+            background: rgba(14, 11, 31, 0.9);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div class="synth-card max-w-md w-full rounded-3xl p-6 text-center space-y-6 neon-glow">
+        
+        <!-- Logo / Icône -->
+        <div class="flex justify-center">
+            <div class="w-20 h-20 rounded-2xl signature-gradient flex items-center justify-center shadow-lg">
+                <i class="fa-brands fa-android text-4xl text-white"></i>
+            </div>
+        </div>
+
+        <!-- Titre -->
+        <div>
+            <h1 class="font-game text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
+                CASA GAME SYSTEM
+            </h1>
+            <p class="text-xs text-slate-400 mt-1">Application Officielle Android (APK)</p>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-black/40 p-4 rounded-xl text-right text-xs text-slate-300 space-y-2 border border-purple-900/40">
+            <p class="font-bold text-blue-400"><i class="fa-solid fa-circle-info ml-1"></i> Instructions d'installation :</p>
+            <p>1. Cliquez sur le bouton de téléchargement ci-dessous.</p>
+            <p>2. Une fois le fichier <code class="text-pink-400">casagame.apk</code> téléchargé,ouvrez-le.</p>
+            <p>3. Si demandé, autorisez l'installation depuis "Sources inconnues" dans les paramètres de votre téléphone.</p>
+        </div>
+
+        <!-- Bouton de Téléchargement Direct -->
+        <div>
+            <a href="CasaGame.apk" download="CasaGameSystem.apk" 
+               class="w-full signature-gradient text-white font-game font-bold py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 shadow-lg hover:opacity-90 active:scale-95 transition-all text-sm">
+                <i class="fa-solid fa-download"></i> Télécharger l'APK
+            </a>
+        </div>
+
+        <!-- Version et Info -->
+        <div class="text-[10px] text-slate-500 font-game">
+            Version 1.0.0 • Compatible Android 8.0+
+        </div>
+
+    </div>
+
+</body>
+</html>
