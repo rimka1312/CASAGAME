@@ -189,7 +189,8 @@
                         </h2>
                         <span class="text-[9px] text-neonCyan font-medium">Catalogue</span>
                     </div>
-                    <div class="flex gap-2.5 overflow-x-auto custom-scrollbar pb-1" id="gamesShowcase"></div>
+                    <!-- تم تصغير عرض مربعات الألعاب هنا -->
+                    <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1" id="gamesShowcase"></div>
                 </div>
 
                 <div>
@@ -498,7 +499,7 @@
                     <i class="fa-brands fa-playstation text-neonPink text-base"></i>
                 </div>
                 <div class="flex justify-center my-1">
-                    <img src="logo.jpeg" alt="Casa Game Logo" class="h-10 w-auto object-contain">
+                    <img src="logo.png" alt="Casa Game Logo" class="h-10 w-auto object-contain">
                 </div>
                 <p class="text-[9px] text-neonCyan font-semibold">PLAY • ENJOY • REPEAT</p>
             </div>
@@ -569,9 +570,12 @@
             return `${dd}/${mm}/${yyyy}`;
         }
 
+        // تفعيل تشغيل المنبه في الخلفية واستمرار النغمات
         function startContinuousAlarm() {
             if (alarmInterval) return;
-            alarmInterval = setInterval(() => { playBeepSound(); }, 1000);
+            alarmInterval = setInterval(() => { 
+                playBeepSound(); 
+            }, 1000);
         }
 
         function stopContinuousAlarm() {
@@ -583,17 +587,21 @@
 
         function playBeepSound() {
             try {
-                if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+                if (!audioCtx) { 
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
+                }
+                if (audioCtx.state === 'suspended') { 
+                    audioCtx.resume(); 
+                }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(950, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.4);
+                osc.stop(audioCtx.currentTime + 0.5);
             } catch(e){}
         }
 
@@ -711,9 +719,10 @@
             fetchFromCloud();
             setupWelcomeModal();
             
+            // تحديث فوري دوري للمناطق الزمنية والمنبه الخلفي
             setInterval(() => {
                 fetchFromCloud();
-            }, 3000);
+            }, 2000);
         };
 
         function refreshActiveInterface() {
@@ -749,6 +758,12 @@
         }
 
         function confirmDeviceEntry() {
+            // تفعيل صوت النظام عند تفاعل المستخدم لأول مرة لتجاوز سياسة متصفحات الخلفية
+            try {
+                if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+            } catch(e){}
+
             const badge = document.getElementById('deviceModeBadge');
             const navBar = document.getElementById('appNavBar');
 
@@ -793,12 +808,13 @@
         function renderGamesShowcase() {
             const container = document.getElementById('gamesShowcase');
             if (!container) return;
+            // تم تصغير عرض المربعات (min-w-[85px]) والصور لتصبح مصغرة وأنيقة
             container.innerHTML = state.games.map(g => `
-                <div class="min-w-[110px] synth-card rounded-xl overflow-hidden flex-shrink-0 relative group border border-purple-500/30">
-                    <img src="${g.cover}" alt="${g.name}" class="w-full h-22 object-cover">
-                    <div class="p-2 bg-surfaceCard">
-                        <p class="font-game font-bold text-[10px] text-textMain truncate">${g.name}</p>
-                        <p class="text-[8px] text-neonCyan font-semibold">${g.category || 'PS5'}</p>
+                <div class="min-w-[85px] synth-card rounded-xl overflow-hidden flex-shrink-0 relative group border border-purple-500/30">
+                    <img src="${g.cover}" alt="${g.name}" class="w-full h-16 object-cover">
+                    <div class="p-1.5 bg-surfaceCard">
+                        <p class="font-game font-bold text-[9px] text-textMain truncate">${g.name}</p>
+                        <p class="text-[7px] text-neonCyan font-semibold">${g.category || 'PS5'}</p>
                     </div>
                 </div>
             `).join('');
