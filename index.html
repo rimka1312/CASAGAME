@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Casa Game - Système d'administration PS5</title>
+    <!-- PWA & Mobile Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Casa Game">
+    <link rel="apple-touch-icon" href="logo.png">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -51,7 +58,6 @@
 
         .font-game { font-family: 'Orbitron', sans-serif; }
 
-        /* Dégradé signature */
         .signature-gradient {
             background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #D946EF 100%);
         }
@@ -145,7 +151,7 @@
                 <div class="inline-block p-[2px] rounded-2xl signature-gradient neon-glow">
                     <div class="bg-bgMain px-6 py-2 rounded-[14px] flex flex-col items-center justify-center">
                         <img src="logo.png" alt="Casa Game Logo" class="h-10 w-auto object-contain drop-shadow-[0_0_8px_#3B82F6]">
-                        <p class="text-[8px] font-bold tracking-[0.25em] text-neonCyan mt-1">PLAY • ENJOY • REPEAT</p>
+                        <p class="text-[8px] font-bold tracking-[0.25em] text-neonCyan mt-1">CASA GAME SYSTEM</p>
                     </div>
                 </div>
             </div>
@@ -219,7 +225,7 @@
                     <div class="synth-card p-4 flex justify-between items-center border border-purple-500/40">
                         <div>
                             <p class="text-[10px] text-textSecondary font-medium">Panneau de contrôle administrateur</p>
-                            <h3 class="text-xs font-black text-neonCyan font-game">CASA GAME ADMIN MONITOR</h3>
+                            <h3 class="text-xs font-black text-neonCyan font-game">CASA GAME SYSTEM</h3>
                         </div>
                         <button onclick="archiveAndResetDay()" class="bg-errorRed/20 text-errorRed border border-errorRed/40 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-errorRed/30 transition-all">
                             <i class="fa-solid fa-box-archive ml-1"></i> Archiver la journée
@@ -369,8 +375,6 @@
     </div>
 
     <!-- MODALS -->
-
-    <!-- Modal d'accueil / Authentification rôle -->
     <div id="welcomeEntryModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
         <div class="synth-card w-full max-w-sm rounded-2xl p-6 text-center space-y-5 border-2 border-neonPurple neon-glow">
             <div class="w-full flex justify-center mb-1">
@@ -402,7 +406,7 @@
             </div>
 
             <button onclick="confirmDeviceEntry()" class="w-full signature-gradient text-white font-black py-3 rounded-xl text-xs font-game neon-glow active:scale-95 transition-all">
-                <i class="fa-solid fa-power-off ml-1"></i> Démarrer l'application
+                <i class="fa-solid fa-power-off ml-1"></i> Démarrer Casa Game System
             </button>
         </div>
     </div>
@@ -494,7 +498,7 @@
         <div class="ticket-border w-full max-w-xs rounded-2xl p-5 space-y-3 text-center shadow-[0_0_35px_rgba(59,130,246,0.3)]">
             <div class="border-b border-neonBlue/30 pb-2">
                 <div class="flex justify-between items-center text-[10px] font-game text-neonCyan mb-1">
-                    <span>CASA GAME PS5</span>
+                    <span>CASA GAME SYSTEM</span>
                     <i class="fa-brands fa-playstation text-neonPink text-base"></i>
                 </div>
                 <div class="flex justify-center my-1">
@@ -569,13 +573,12 @@
             return `${dd}/${mm}/${yyyy}`;
         }
 
-        // تفعيل تشغيل المنبه الهادئ في الخلفية واستمرار النغمات
         function startContinuousAlarm() {
             if (alarmInterval) return;
             playSoftBeep();
             alarmInterval = setInterval(() => { 
                 playSoftBeep(); 
-            }, 1200); // رنة هادئة كل 1.2 ثانية
+            }, 1200);
         }
 
         function stopContinuousAlarm() {
@@ -585,7 +588,6 @@
             }
         }
 
-        // صوت منبه هادئ ومريح للأذن (Sine Wave ناعم مع Fade Out)
         function playSoftBeep() {
             try {
                 if (!audioCtx) { 
@@ -598,11 +600,9 @@
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 
-                // استخدام موجة ناعمة (Sine) بتردد منخفض ومريح (520 هرتز)
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(520, audioCtx.currentTime);
                 
-                // مستوى صوت منخفض نسبياً وغير مزعج
                 gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
                 
@@ -612,7 +612,7 @@
                 osc.start();
                 osc.stop(audioCtx.currentTime + 0.8);
             } catch(e){
-                console.error("خطأ في تشغيل صوت المنبه الخلفي:", e);
+                console.error("خطأ في تشغيل صوت المنبه:", e);
             }
         }
 
@@ -730,7 +730,6 @@
             fetchFromCloud();
             setupWelcomeModal();
             
-            // تحديث دوري لتتبع العدادات الخلفية للبوستات المنتهية
             setInterval(() => {
                 fetchFromCloud();
             }, 2000);
@@ -769,7 +768,6 @@
         }
 
         function confirmDeviceEntry() {
-            // تفعيل نظام الصوت عند تفاعل الكاشير الأول لتجاوز قيود تشغيل الخلفية للمتصفحات
             try {
                 if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
                 if (audioCtx.state === 'suspended') { audioCtx.resume(); }
@@ -819,7 +817,6 @@
         function renderGamesShowcase() {
             const container = document.getElementById('gamesShowcase');
             if (!container) return;
-            // عرض مربعات الألعاب المصغرة والأنيقة
             container.innerHTML = state.games.map(g => `
                 <div class="min-w-[85px] synth-card rounded-xl overflow-hidden flex-shrink-0 relative group border border-purple-500/30">
                     <img src="${g.cover}" alt="${g.name}" class="w-full h-16 object-cover">
@@ -932,7 +929,6 @@
                 container.appendChild(card);
             });
 
-            // تفعيل أو إيقاف المنبه الهادئ في الخلفية بناءً على انتهاء وقت أي بوست
             if (hasAnyExpired) {
                 startContinuousAlarm();
             } else {
@@ -1186,7 +1182,7 @@
                         session_timestamp: timestampStr
                     });
                 } catch(e) {
-                    console.error("Erreur enregistrement log session :", e);
+                    console.error("Erreur log session :", e);
                 }
             }
 
