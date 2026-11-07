@@ -189,7 +189,6 @@
                         </h2>
                         <span class="text-[9px] text-neonCyan font-medium">Catalogue</span>
                     </div>
-                    <!-- تم تصغير عرض مربعات الألعاب هنا -->
                     <div class="flex gap-2 overflow-x-auto custom-scrollbar pb-1" id="gamesShowcase"></div>
                 </div>
 
@@ -570,12 +569,13 @@
             return `${dd}/${mm}/${yyyy}`;
         }
 
-        // تفعيل تشغيل المنبه في الخلفية واستمرار النغمات
+        // تفعيل تشغيل المنبه الهادئ في الخلفية واستمرار النغمات
         function startContinuousAlarm() {
             if (alarmInterval) return;
+            playSoftBeep();
             alarmInterval = setInterval(() => { 
-                playBeepSound(); 
-            }, 1000);
+                playSoftBeep(); 
+            }, 1200); // رنة هادئة كل 1.2 ثانية
         }
 
         function stopContinuousAlarm() {
@@ -585,7 +585,8 @@
             }
         }
 
-        function playBeepSound() {
+        // صوت منبه هادئ ومريح للأذن (Sine Wave ناعم مع Fade Out)
+        function playSoftBeep() {
             try {
                 if (!audioCtx) { 
                     audioCtx = new (window.AudioContext || window.webkitAudioContext)(); 
@@ -593,16 +594,26 @@
                 if (audioCtx.state === 'suspended') { 
                     audioCtx.resume(); 
                 }
+
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(950, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                
+                // استخدام موجة ناعمة (Sine) بتردد منخفض ومريح (520 هرتز)
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(520, audioCtx.currentTime);
+                
+                // مستوى صوت منخفض نسبياً وغير مزعج
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+                
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
+                
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e){}
+                osc.stop(audioCtx.currentTime + 0.8);
+            } catch(e){
+                console.error("خطأ في تشغيل صوت المنبه الخلفي:", e);
+            }
         }
 
         function updateClockAndDate() {
@@ -719,7 +730,7 @@
             fetchFromCloud();
             setupWelcomeModal();
             
-            // تحديث فوري دوري للمناطق الزمنية والمنبه الخلفي
+            // تحديث دوري لتتبع العدادات الخلفية للبوستات المنتهية
             setInterval(() => {
                 fetchFromCloud();
             }, 2000);
@@ -758,7 +769,7 @@
         }
 
         function confirmDeviceEntry() {
-            // تفعيل صوت النظام عند تفاعل المستخدم لأول مرة لتجاوز سياسة متصفحات الخلفية
+            // تفعيل نظام الصوت عند تفاعل الكاشير الأول لتجاوز قيود تشغيل الخلفية للمتصفحات
             try {
                 if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
                 if (audioCtx.state === 'suspended') { audioCtx.resume(); }
@@ -808,7 +819,7 @@
         function renderGamesShowcase() {
             const container = document.getElementById('gamesShowcase');
             if (!container) return;
-            // تم تصغير عرض المربعات (min-w-[85px]) والصور لتصبح مصغرة وأنيقة
+            // عرض مربعات الألعاب المصغرة والأنيقة
             container.innerHTML = state.games.map(g => `
                 <div class="min-w-[85px] synth-card rounded-xl overflow-hidden flex-shrink-0 relative group border border-purple-500/30">
                     <img src="${g.cover}" alt="${g.name}" class="w-full h-16 object-cover">
@@ -921,6 +932,7 @@
                 container.appendChild(card);
             });
 
+            // تفعيل أو إيقاف المنبه الهادئ في الخلفية بناءً على انتهاء وقت أي بوست
             if (hasAnyExpired) {
                 startContinuousAlarm();
             } else {
