@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Casa Game - نظام إدارة قاعة الألعاب PS5</title>
+    <title>Casa Game - Système d'administration PS5</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts: Orbitron + Cairo -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
+    <!-- Google Fonts: Orbitron + Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@600;800;900&display=swap" rel="stylesheet">
     <!-- Supabase JS Client -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
@@ -18,16 +18,21 @@
             theme: {
                 extend: {
                     colors: {
-                        vicePink: '#ff2a85',
-                        vicePurple: '#8b00ff',
-                        viceCyan: '#00f0ff',
-                        viceBlue: '#00439c',
-                        synthDark: '#0b0618',
-                        synthCard: '#150d2a',
+                        bgMain: '#05030F',
+                        surfaceCard: '#0E0B1F',
+                        surfaceHigh: '#161230',
+                        neonBlue: '#3B82F6',
+                        neonCyan: '#60C5FF',
+                        neonPurple: '#8B5CF6',
+                        neonPink: '#D946EF',
+                        textMain: '#F5F6FF',
+                        textSecondary: '#9A9CC0',
+                        successGreen: '#22E6A0',
+                        errorRed: '#FF4D6D'
                     },
                     fontFamily: {
-                        cairo: ['Cairo', 'sans-serif'],
-                        orbitron: ['Orbitron', 'sans-serif'],
+                        sans: ['Inter', 'sans-serif'],
+                        game: ['Orbitron', 'sans-serif'],
                     }
                 }
             }
@@ -36,9 +41,9 @@
 
     <style>
         body {
-            font-family: 'Cairo', sans-serif;
-            background: #070312;
-            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            background-color: #05030F;
+            color: #F5F6FF;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
@@ -46,21 +51,36 @@
 
         .font-game { font-family: 'Orbitron', sans-serif; }
 
-        .neon-glow-pink {
-            box-shadow: 0 0 20px rgba(255, 42, 133, 0.5), inset 0 0 10px rgba(255, 42, 133, 0.3);
-            border-color: #ff2a85 !important;
+        /* Dégradé signature */
+        .signature-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #D946EF 100%);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #3B82F6 0%, #8B5CF6 60%, #D946EF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(139,92,246,0.45);
+        }
+
+        .neon-glow-active {
+            box-shadow: 0 0 25px rgba(59,130,246,0.6), inset 0 0 10px rgba(139,92,246,0.3);
+            border-color: #3B82F6 !important;
         }
 
         .synth-card {
-            background: linear-gradient(165deg, rgba(27, 14, 52, 0.9) 0%, rgba(15, 8, 32, 0.95) 100%);
+            background: rgba(14, 11, 31, 0.85);
             backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(255, 42, 133, 0.25);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            border-radius: 16px;
         }
 
         .ticket-border {
-            border: 2px solid #ff2a85;
-            background: linear-gradient(180deg, rgba(139, 0, 255, 0.15) 0%, rgba(0, 240, 255, 0.05) 100%);
-            position: relative;
+            border: 1.5px solid #3B82F6;
+            background: linear-gradient(180deg, rgba(14,11,31,0.95) 0%, rgba(22,18,48,0.95) 100%);
         }
 
         .mobile-frame {
@@ -68,8 +88,8 @@
             min-height: 100vh;
             margin: 0 auto;
             position: relative;
-            background: linear-gradient(180deg, #090317 0%, #140728 100%);
-            box-shadow: 0 0 60px rgba(139, 0, 255, 0.4);
+            background: radial-gradient(circle at top, #161230 0%, #05030F 70%);
+            box-shadow: 0 0 50px rgba(139, 92, 246, 0.25);
             display: flex;
             flex-direction: column;
         }
@@ -79,272 +99,264 @@
                 min-height: 900px;
                 height: 94vh;
                 margin: 15px auto;
-                border-radius: 42px;
-                border: 6px solid #ff2a85;
-                box-shadow: 0 0 35px rgba(255, 42, 133, 0.6), 0 0 70px rgba(0, 240, 255, 0.3);
+                border-radius: 20px;
+                border: 2px solid rgba(139, 92, 246, 0.4);
                 overflow: hidden;
             }
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #090317; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #ff2a85; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #05030F; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #8B5CF6; border-radius: 4px; }
     </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
 
     <div class="mobile-frame w-full custom-scrollbar">
 
-        <div class="bg-black/60 px-5 pt-3 pb-2 flex justify-between items-center text-[11px] border-b border-pink-500/30 font-game backdrop-blur-md sticky top-0 z-50">
+        <!-- Barre d'état haute -->
+        <div class="bg-black/40 px-5 pt-3 pb-2 flex justify-between items-center text-[11px] font-game border-b border-purple-900/30 backdrop-blur-md sticky top-0 z-50">
             <div class="flex items-center gap-2">
-                <span id="currentTimeDisplay" class="text-viceCyan font-extrabold tracking-wider">12:00</span>
-                <span id="deviceModeBadge" class="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-full border border-pink-500/40">CASA GAME OS</span>
+                <span id="currentTimeDisplay" class="text-neonCyan font-extrabold tracking-wider">12:00</span>
+                <span id="deviceModeBadge" class="text-[9px] bg-neonBlue/20 text-neonCyan px-2 py-0.5 rounded-full border border-neonBlue/40">CASA GAME</span>
             </div>
-            <div class="flex items-center gap-3 text-slate-300">
-                <i class="fa-brands fa-playstation text-viceCyan text-sm"></i>
-                <i class="fa-solid fa-wifi text-pink-400"></i>
-                <i class="fa-solid fa-battery-full text-emerald-400"></i>
+            <div class="flex items-center gap-3 text-textSecondary">
+                <i class="fa-brands fa-playstation text-neonCyan text-sm"></i>
+                <i class="fa-solid fa-wifi text-neonBlue"></i>
+                <i class="fa-solid fa-battery-full text-successGreen"></i>
             </div>
         </div>
 
-        <header class="relative px-4 pt-3 pb-4 bg-gradient-to-b from-purple-900/60 via-slate-950 to-transparent border-b border-pink-500/30 overflow-hidden">
-            <div class="absolute inset-0 opacity-25 pointer-events-none flex justify-between items-center px-2">
-                <i class="fa-solid fa-tree-city text-6xl text-pink-500"></i>
-                <i class="fa-solid fa-gamepad text-8xl text-cyan-400 -mr-6 opacity-30"></i>
-            </div>
-
-            <div class="flex justify-between items-center mb-2 z-10 relative">
-                <div class="flex items-center gap-1.5 bg-black/60 border border-pink-500/50 px-2.5 py-1 rounded-xl">
-                    <i class="fa-regular fa-calendar-days text-viceCyan text-xs"></i>
-                    <span class="text-[10px] font-bold text-slate-300">LA DATE:</span>
-                    <span id="headerTodayDate" class="text-[10px] font-game font-extrabold text-pink-400">--/--/----</span>
+        <!-- En-tête Logo Néon -->
+        <header class="relative px-4 pt-4 pb-4 bg-gradient-to-b from-surfaceHigh/60 to-transparent border-b border-purple-900/30 overflow-hidden">
+            <div class="flex justify-between items-center mb-3 z-10 relative">
+                <div class="flex items-center gap-1.5 bg-surfaceCard border border-purple-500/30 px-3 py-1 rounded-xl">
+                    <i class="fa-regular fa-calendar-days text-neonCyan text-xs"></i>
+                    <span class="text-[10px] text-textSecondary font-medium">Date :</span>
+                    <span id="headerTodayDate" class="text-[10px] font-game font-bold text-neonPink">--/--/----</span>
                 </div>
                 <div class="flex items-center gap-2">
-                    <span class="font-game text-xs font-black text-viceCyan tracking-widest">PS5</span>
-                    <i class="fa-brands fa-playstation text-2xl text-white drop-shadow-[0_0_10px_#00f0ff]"></i>
+                    <span class="font-game text-xs font-black text-neonCyan tracking-widest">PS5</span>
+                    <i class="fa-brands fa-playstation text-xl text-textMain drop-shadow-[0_0_8px_#3B82F6]"></i>
                 </div>
             </div>
 
             <div class="relative z-10 text-center my-1">
-                <div class="inline-block relative">
-                    <div class="bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-400 p-0.5 rounded-2xl shadow-[0_0_25px_rgba(255,42,133,0.7)]">
-                        <div class="bg-slate-950/95 px-6 py-2 rounded-[14px] flex flex-col items-center justify-center border border-pink-500/40">
-                            <i class="fa-solid fa-gamepad text-viceCyan text-2xl mb-0.5 animate-bounce"></i>
-                            <h1 class="font-game text-2xl font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-300 to-cyan-300 drop-shadow-[0_0_8px_#ff2a85]">
-                                CASA GAME
-                            </h1>
-                            <p class="text-[8px] font-bold tracking-[0.2em] text-pink-400 -mt-1">PLAY • ENJOY • REPEAT</p>
-                        </div>
+                <div class="inline-block p-[2px] rounded-2xl signature-gradient neon-glow">
+                    <div class="bg-bgMain px-6 py-2 rounded-[14px] flex flex-col items-center justify-center">
+                        <img src="logo.png" alt="Casa Game Logo" class="h-10 w-auto object-contain drop-shadow-[0_0_8px_#3B82F6]">
+                        <p class="text-[8px] font-bold tracking-[0.25em] text-neonCyan mt-1">PLAY • ENJOY • REPEAT</p>
                     </div>
                 </div>
             </div>
 
-            <div class="flex justify-center items-center gap-6 mt-2 text-pink-400 text-xs font-game opacity-80">
+            <div class="flex justify-center items-center gap-6 mt-3 text-neonPurple text-xs font-game opacity-70">
                 <span>△</span><span>◯</span><span>✕</span><span>⬜</span>
             </div>
         </header>
 
+        <!-- Contenu principal -->
         <main class="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar pb-24">
 
-            <!-- CASHIER VIEW -->
+            <!-- VUE CAISSE -->
             <div id="cashierView" class="space-y-4">
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div class="synth-card p-3 rounded-2xl border-l-4 border-l-viceCyan flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-viceCyan flex items-center justify-center text-lg shadow-[0_0_10px_#00f0ff]">
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="synth-card p-3.5 border-l-4 border-l-neonBlue flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-neonBlue/20 text-neonBlue flex items-center justify-center text-base shadow-[0_0_10px_#3B82F6]">
                             <i class="fa-solid fa-tv"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold">الأجهزة النشطة</p>
-                            <p id="activeCountText" class="font-game text-base font-black text-white">0 / 4</p>
+                            <p class="text-[10px] text-textSecondary font-medium">Postes actifs</p>
+                            <p id="activeCountText" class="font-game text-base font-black text-textMain">0 / 4</p>
                         </div>
                     </div>
 
-                    <div class="synth-card p-3 rounded-2xl border-l-4 border-l-pink-500 flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-lg shadow-[0_0_10px_#ff2a85]">
+                    <div class="synth-card p-3.5 border-l-4 border-l-neonPink flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-neonPink/20 text-neonPink flex items-center justify-center text-base shadow-[0_0_10px_#D946EF]">
                             <i class="fa-solid fa-sack-dollar"></i>
                         </div>
                         <div>
-                            <p class="text-[10px] text-slate-400 font-bold">مداخيل اليومية</p>
-                            <p id="todayIncomeText" class="font-game text-base font-black text-pink-400">0 دج</p>
+                            <p class="text-[10px] text-textSecondary font-medium">Recette du jour</p>
+                            <p id="todayIncomeText" class="font-game text-base font-black text-neonPink">0 DZD</p>
                         </div>
                     </div>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-xs font-black text-slate-200 flex items-center gap-1.5">
-                            <i class="fa-solid fa-fire text-pink-400"></i> الألعاب المتاحة بالقاعة
+                        <h2 class="text-xs font-bold text-textMain flex items-center gap-1.5 font-game">
+                            <i class="fa-solid fa-fire text-neonPink"></i> Jeux Populaires PS5
                         </h2>
-                        <span class="text-[9px] text-viceCyan font-bold">PS5 Console Games</span>
+                        <span class="text-[9px] text-neonCyan font-medium">Catalogue</span>
                     </div>
                     <div class="flex gap-2.5 overflow-x-auto custom-scrollbar pb-1" id="gamesShowcase"></div>
                 </div>
 
                 <div>
                     <div class="flex justify-between items-center mb-2.5">
-                        <h2 class="text-xs font-black text-slate-200 flex items-center gap-2">
-                            <i class="fa-solid fa-desktop text-viceCyan"></i> أجهزة القاعة (Postes 1-4)
+                        <h2 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-desktop text-neonBlue"></i> Postes de la salle (1 - 4)
                         </h2>
-                        <span class="text-[10px] text-pink-400 font-bold">تحكم فوري بالوقت</span>
+                        <span class="text-[10px] text-neonPink font-medium">Temps réel</span>
                     </div>
                     <div class="grid grid-cols-1 gap-3.5" id="devicesListContainer"></div>
                 </div>
 
-                <div class="synth-card p-3.5 rounded-2xl border border-pink-500/30">
-                    <div class="flex justify-between items-center mb-2.5">
-                        <h3 class="text-xs font-extrabold text-white flex items-center gap-2">
-                            <i class="fa-solid fa-snowflake text-cyan-400"></i> قائمة الثلاجة والمشروبات (FRIGOU)
+                <div class="synth-card p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-snowflake text-neonCyan"></i> Frigo & Snacks (FRIGOU)
                         </h3>
-                        <span class="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded-lg border border-pink-500/30">بيع مباشر</span>
+                        <span class="text-[9px] bg-neonBlue/20 text-neonCyan px-2 py-0.5 rounded-lg border border-neonBlue/30">Vente directe</span>
                     </div>
                     <div class="grid grid-cols-3 gap-2" id="quickSnacksGrid"></div>
                 </div>
             </div>
 
-            <!-- MANAGER VIEW -->
+            <!-- VUE ADMINISTRATION -->
             <div id="adminView" class="hidden space-y-4">
                 <div id="adminDashboardContent" class="space-y-4">
-                    <div class="synth-card p-4 rounded-2xl flex justify-between items-center border border-pink-500/40">
+                    <div class="synth-card p-4 flex justify-between items-center border border-purple-500/40">
                         <div>
-                            <p class="text-xs text-slate-400 font-bold">لوحة تحكم المدير عن بعد (من المنزل)</p>
-                            <h3 class="text-sm font-black text-viceCyan font-game">CASA GAME ADMIN MONITOR</h3>
+                            <p class="text-[10px] text-textSecondary font-medium">Panneau de contrôle administrateur</p>
+                            <h3 class="text-xs font-black text-neonCyan font-game">CASA GAME ADMIN MONITOR</h3>
                         </div>
-                        <button onclick="archiveAndResetDay()" class="bg-red-500/20 text-red-400 border border-red-500/40 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-red-500/30">
-                            <i class="fa-solid fa-box-archive ml-1"></i> أرشفة وتصفير اليوم
+                        <button onclick="archiveAndResetDay()" class="bg-errorRed/20 text-errorRed border border-errorRed/40 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-errorRed/30 transition-all">
+                            <i class="fa-solid fa-box-archive ml-1"></i> Archiver la journée
                         </button>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl border-2 border-red-500/60 bg-red-950/20 flex justify-between items-center">
+                    <div class="synth-card p-4 border-2 border-errorRed/50 bg-errorRed/5 flex justify-between items-center">
                         <div>
-                            <p class="text-xs font-bold text-red-400">تفريغ شامل لقاعدة البيانات</p>
-                            <p class="text-[10px] text-slate-400">حذف جميع البيانات، الألعاب، المشروبات، والجلسات (الاحتفاظ بكلمة المرور فقط)</p>
+                            <p class="text-xs font-bold text-errorRed">Réinitialisation de la base</p>
+                            <p class="text-[10px] text-textSecondary">Vider les données (conserve uniquement le mot de passe)</p>
                         </div>
-                        <button onclick="clearDatabaseExceptPassword()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 shadow-[0_0_15px_rgba(239,68,68,0.5)]">
-                            <i class="fa-solid fa-triangle-exclamation ml-1"></i> مسح شامل لكل البيانات
+                        <button onclick="clearDatabaseExceptPassword()" class="bg-errorRed hover:bg-errorRed/80 text-white px-3 py-2 rounded-xl text-xs font-bold flex-shrink-0 neon-glow">
+                            <i class="fa-solid fa-triangle-exclamation ml-1"></i> Vider la BDD
                         </button>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-2 border-l-4 border-l-purple-500 bg-gradient-to-r from-purple-950/40 to-slate-950">
-                        <p class="text-xs text-slate-300 font-bold flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line text-pink-400"></i> المجموع الإجمالي التراكمي (كل الأيام)
+                    <div class="synth-card p-4 border-l-4 border-l-neonPurple">
+                        <p class="text-xs text-textSecondary font-medium flex items-center gap-2 mb-1">
+                            <i class="fa-solid fa-chart-line text-neonPink"></i> Chiffre d'affaires cumulé (Global)
                         </p>
-                        <h2 id="grandTotalRevenueText" class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-pink-400 to-white font-game">
-                            0 دج
+                        <h2 id="grandTotalRevenueText" class="text-2xl font-black text-gradient font-game">
+                            0 DZD
                         </h2>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border border-pink-500/40">
-                        <h3 class="text-xs font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-key text-pink-400"></i> تغيير كلمة المرور وإعدادات الأمان
+                    <div class="synth-card p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-key text-neonPink"></i> Sécurité & Mot de passe Admin
                         </h3>
                         <div class="flex gap-2">
-                            <input type="password" id="newAdminPinInput" placeholder="كلمة المرور الجديدة..." class="w-full bg-black/80 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:outline-none focus:border-pink-500">
-                            <button onclick="updateAdminPin()" class="bg-pink-500 text-white font-bold px-4 py-2 rounded-xl text-xs flex-shrink-0">
-                                حفظ
+                            <input type="password" id="newAdminPinInput" placeholder="Nouveau code PIN..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-xs text-textMain focus:outline-none focus:border-neonBlue">
+                            <button onclick="updateAdminPin()" class="signature-gradient text-white font-bold px-4 py-2 rounded-xl text-xs flex-shrink-0 transition-transform active:scale-95">
+                                Enregistrer
                             </button>
                         </div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border border-cyan-500/40">
+                    <div class="synth-card p-4 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-gamepad text-viceCyan"></i> التحكم بالألعاب والأسعار
+                            <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                                <i class="fa-solid fa-gamepad text-neonCyan"></i> Gestion des Jeux
                             </h3>
-                            <button onclick="openAddGameModal()" class="bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 px-2 py-1 rounded-lg text-[10px] font-bold">
-                                + لعبة جديدة
+                            <button onclick="openAddGameModal()" class="bg-neonCyan/20 text-neonCyan border border-neonCyan/40 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                                + Nouveau jeu
                             </button>
                         </div>
                         <div id="adminGamesList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border border-purple-500/40">
+                    <div class="synth-card p-4 space-y-3">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-xs font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-tags text-amber-400"></i> تسعيرة وتوقيت المباريات (دج)
+                            <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                                <i class="fa-solid fa-tags text-amber-400"></i> Tarifs & Durées des Matchs
                             </h3>
-                            <button onclick="openAddPresetModal()" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2 py-1 rounded-lg text-[10px] font-bold">
-                                + توقيت/تسعيرة جديدة
+                            <button onclick="openAddPresetModal()" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                                + Ajouter tarif
                             </button>
                         </div>
                         
                         <div class="grid grid-cols-2 gap-2 text-xs">
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">1v1 (7 دقائق):</label>
-                                <input type="number" id="pricePreset1v1" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
+                                <label class="text-[10px] text-textSecondary block mb-1">1v1 (7 min) :</label>
+                                <input type="number" id="pricePreset1v1" onchange="updatePresetPrices()" class="w-full bg-black/60 border border-purple-900/50 rounded-lg p-2 text-textMain">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">1v1 إضافي (10 دقائق):</label>
-                                <input type="number" id="pricePreset1v1Extra" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
+                                <label class="text-[10px] text-textSecondary block mb-1">1v1 Extra (10 min) :</label>
+                                <input type="number" id="pricePreset1v1Extra" onchange="updatePresetPrices()" class="w-full bg-black/60 border border-purple-900/50 rounded-lg p-2 text-textMain">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">2v2 (7 دقائق):</label>
-                                <input type="number" id="pricePreset2v2" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
+                                <label class="text-[10px] text-textSecondary block mb-1">2v2 (7 min) :</label>
+                                <input type="number" id="pricePreset2v2" onchange="updatePresetPrices()" class="w-full bg-black/60 border border-purple-900/50 rounded-lg p-2 text-textMain">
                             </div>
                             <div>
-                                <label class="text-[10px] text-slate-400 block mb-1">2v2 إضافي (10 دقائق):</label>
-                                <input type="number" id="pricePreset2v2Extra" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
+                                <label class="text-[10px] text-textSecondary block mb-1">2v2 Extra (10 min) :</label>
+                                <input type="number" id="pricePreset2v2Extra" onchange="updatePresetPrices()" class="w-full bg-black/60 border border-purple-900/50 rounded-lg p-2 text-textMain">
                             </div>
                             <div class="col-span-2">
-                                <label class="text-[10px] text-slate-400 block mb-1">الوقت المفتوح (سعر الساعة بالدينار):</label>
-                                <input type="number" id="pricePresetOpen" onchange="updatePresetPrices()" class="w-full bg-black/80 border border-slate-700 rounded-lg p-2 text-white">
+                                <label class="text-[10px] text-textSecondary block mb-1">Temps ouvert (Prix / heure) :</label>
+                                <input type="number" id="pricePresetOpen" onchange="updatePresetPrices()" class="w-full bg-black/60 border border-purple-900/50 rounded-lg p-2 text-textMain">
                             </div>
                         </div>
 
                         <div id="customPresetsContainer" class="pt-2 border-t border-purple-500/20 space-y-2">
-                            <p class="text-[10px] text-slate-400 font-bold">التسعيرات الإضافية المخصصة:</p>
+                            <p class="text-[10px] text-textSecondary font-medium">Tarifs personnalisés :</p>
                             <div id="customPresetsList" class="space-y-1.5"></div>
                         </div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border-t-4 border-t-viceCyan">
-                        <h3 class="text-xs font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-vault text-amber-400"></i> مطابقة الصندوق / الخزينة اليومية
+                    <div class="synth-card p-4 space-y-3 border-t-4 border-t-neonBlue">
+                        <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-vault text-amber-400"></i> Clôture & Caisse journalière
                         </h3>
                         <div class="grid grid-cols-2 gap-2 text-xs">
-                            <div class="bg-black/60 p-2.5 rounded-xl border border-pink-500/30">
-                                <span class="text-slate-400 text-[10px] block">مداخيل الألعاب</span>
-                                <span id="adminMatchEarnings" class="font-game font-bold text-viceCyan text-sm">0 دج</span>
+                            <div class="bg-black/40 p-2.5 rounded-xl border border-purple-500/20">
+                                <span class="text-textSecondary text-[10px] block">Revenus Jeux</span>
+                                <span id="adminMatchEarnings" class="font-game font-bold text-neonCyan text-sm">0 DZD</span>
                             </div>
-                            <div class="bg-black/60 p-2.5 rounded-xl border border-pink-500/30">
-                                <span class="text-slate-400 text-[10px] block">مداخيل المأكولات</span>
-                                <span id="adminSnackEarnings" class="font-game font-bold text-pink-400 text-sm">0 دج</span>
+                            <div class="bg-black/40 p-2.5 rounded-xl border border-purple-500/20">
+                                <span class="text-textSecondary text-[10px] block">Revenus Frigo</span>
+                                <span id="adminSnackEarnings" class="font-game font-bold text-neonPink text-sm">0 DZD</span>
                             </div>
                         </div>
                         <div>
-                            <label class="text-[11px] text-slate-300 block mb-1 font-bold">أدخل المبلغ الملموس بالخزينة:</label>
+                            <label class="text-[11px] text-textMain block mb-1 font-medium">Montant physique en caisse :</label>
                             <div class="relative">
-                                <input type="number" id="actualDrawerCashInput" oninput="calculateReconciliation()" placeholder="المبلغ..." class="w-full bg-black/80 border border-cyan-500/40 rounded-xl p-2.5 text-xs font-bold text-white focus:outline-none">
-                                <span class="absolute left-3 top-2.5 text-xs text-slate-400 font-bold">دج</span>
+                                <input type="number" id="actualDrawerCashInput" oninput="calculateReconciliation()" placeholder="Montant..." class="w-full bg-black/60 border border-neonBlue/40 rounded-xl p-2.5 text-xs font-bold text-textMain focus:outline-none">
+                                <span class="absolute left-3 top-2.5 text-xs text-textSecondary font-bold">DZD</span>
                             </div>
                         </div>
-                        <div id="reconResultBox" class="p-3 rounded-xl bg-black/80 border border-slate-700 flex justify-between items-center text-xs">
-                            <span class="text-slate-300 text-[11px]">نتيجة المقارنة:</span>
-                            <span id="reconDiffText" class="font-bold text-white font-game">0 دج</span>
+                        <div id="reconResultBox" class="p-3 rounded-xl bg-black/60 border border-purple-900/50 flex justify-between items-center text-xs">
+                            <span class="text-textSecondary text-[11px]">Écart de caisse :</span>
+                            <span id="reconDiffText" class="font-bold text-textMain font-game">0 DZD</span>
                         </div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border border-pink-500/40">
-                        <h3 class="text-xs font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-clock-rotate-left text-viceCyan"></i> سجل مداخيل الأيام السابقة (الأرشيف)
+                    <div class="synth-card p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-clock-rotate-left text-neonCyan"></i> Historique & Archives
                         </h3>
                         <div id="dailyArchiveLogs" class="space-y-2 max-h-48 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3 border border-purple-500/40">
-                        <div class="flex justify-between items-center border-b border-pink-500/20 pb-2">
-                            <h3 class="text-xs font-black text-white flex items-center gap-2">
-                                <i class="fa-solid fa-burger text-pink-400"></i> قائمة المشروبات وتسيير المخزون
+                    <div class="synth-card p-4 space-y-3">
+                        <div class="flex justify-between items-center border-b border-purple-500/20 pb-2">
+                            <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                                <i class="fa-solid fa-burger text-neonPink"></i> Gestion du Frigo & Stock
                             </h3>
-                            <button onclick="openAddSnackModal()" class="bg-pink-500/20 text-pink-300 border border-pink-500/40 px-2 py-1 rounded-lg text-[10px] font-bold">
-                                + عنصر جديد
+                            <button onclick="openAddSnackModal()" class="bg-neonPink/20 text-neonPink border border-neonPink/40 px-2.5 py-1 rounded-lg text-[10px] font-bold">
+                                + Article
                             </button>
                         </div>
                         <div id="adminSnackList" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
                     </div>
 
-                    <div class="synth-card p-4 rounded-2xl space-y-3">
-                        <h3 class="text-xs font-black text-white flex items-center gap-2">
-                            <i class="fa-solid fa-receipt text-viceCyan"></i> معاملات اليوم الحالية
+                    <div class="synth-card p-4 space-y-3">
+                        <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game">
+                            <i class="fa-solid fa-receipt text-neonCyan"></i> Sessions du jour
                         </h3>
                         <div id="adminSessionLogs" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar"></div>
                     </div>
@@ -352,167 +364,169 @@
             </div>
         </main>
 
-        <nav id="appNavBar" class="absolute bottom-0 left-0 right-0 bg-black/90 border-t border-pink-500/40 px-8 py-3 flex justify-between items-center backdrop-blur-md z-40">
+        <nav id="appNavBar" class="absolute bottom-0 left-0 right-0 bg-black/80 border-t border-purple-900/40 px-8 py-3 flex justify-between items-center backdrop-blur-md z-40">
         </nav>
     </div>
 
     <!-- MODALS -->
 
+    <!-- Modal d'accueil / Authentification rôle -->
     <div id="welcomeEntryModal" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-50 flex items-center justify-center p-4">
-        <div class="synth-card w-full max-w-sm rounded-3xl p-6 text-center space-y-5 border-2 border-pink-500 shadow-[0_0_50px_rgba(255,42,133,0.6)]">
-            <div class="w-20 h-20 bg-gradient-to-tr from-pink-500 via-purple-600 to-cyan-400 rounded-2xl flex items-center justify-center mx-auto shadow-[0_0_25px_#00f0ff] p-0.5">
-                <div class="w-full h-full bg-slate-950 rounded-[14px] flex items-center justify-center">
-                    <i class="fa-brands fa-playstation text-4xl text-viceCyan"></i>
-                </div>
+        <div class="synth-card w-full max-w-sm rounded-2xl p-6 text-center space-y-5 border-2 border-neonPurple neon-glow">
+            <div class="w-full flex justify-center mb-1">
+                <img src="logo.png" alt="Casa Game Logo" class="h-16 w-auto object-contain drop-shadow-[0_0_12px_#D946EF]">
             </div>
 
             <div>
-                <h2 class="font-game text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-300 to-cyan-300">
-                    CASA GAME PS5
-                </h2>
-                <p class="text-xs text-pink-400 font-bold mt-1" id="entryModalDate">تاريخ اليوم: --/--/----</p>
+                <p class="text-xs text-neonPink font-semibold mt-1" id="entryModalDate">Date : --/--/----</p>
             </div>
 
             <div class="space-y-3 pt-1">
-                <label class="text-slate-300 text-xs font-bold block mb-2">اختر نوع هذا الجهاز:</label>
-                <div class="grid grid-cols-2 gap-2">
-                    <button type="button" onclick="selectDeviceRole('cashier')" id="roleCashierBtn" class="bg-pink-500/20 border-2 border-pink-500 text-pink-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all">
-                        <i class="fa-solid fa-cash-register text-lg"></i>
-                        <span>هاتف الكاشير</span>
+                <label class="text-textSecondary text-xs font-medium block mb-2">Sélectionner le mode d'accès :</label>
+                <div class="grid grid-cols-2 gap-2.5">
+                    <button type="button" onclick="selectDeviceRole('cashier')" id="roleCashierBtn" class="bg-neonBlue/20 border-2 border-neonBlue text-neonCyan py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-cash-register text-base"></i>
+                        <span>Caisse / Poste</span>
                     </button>
-                    <button type="button" onclick="selectDeviceRole('admin')" id="roleAdminBtn" class="bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all">
-                        <i class="fa-solid fa-user-shield text-lg"></i>
-                        <span>هاتف المدير</span>
+                    <button type="button" onclick="selectDeviceRole('admin')" id="roleAdminBtn" class="bg-black/60 border-2 border-purple-900/60 text-textSecondary py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all">
+                        <i class="fa-solid fa-user-shield text-base"></i>
+                        <span>Administrateur</span>
                     </button>
                 </div>
             </div>
 
             <div id="adminPinBox" class="space-y-2 pt-1 hidden">
-                <label class="text-slate-300 text-xs font-bold block">أدخل كلمة مرور المدير:</label>
-                <input type="password" id="entryPinInput" placeholder="****" maxlength="8" class="w-full bg-black/90 border border-pink-500/50 text-center text-3xl font-game tracking-[0.3em] rounded-2xl py-2.5 focus:outline-none focus:border-cyan-400 text-white shadow-inner">
-                <p id="entryPinError" class="text-red-400 text-xs font-bold hidden animate-pulse">كلمة المرور غير صحيحة!</p>
+                <label class="text-textSecondary text-xs font-medium block">Code PIN Administrateur :</label>
+                <input type="password" id="entryPinInput" placeholder="••••" maxlength="8" class="w-full bg-black/80 border border-purple-500/50 text-center text-3xl font-game tracking-[0.3em] rounded-xl py-2.5 focus:outline-none focus:border-neonCyan text-textMain">
+                <p id="entryPinError" class="text-errorRed text-xs font-bold hidden animate-pulse">Code PIN erroné !</p>
             </div>
 
-            <button onclick="confirmDeviceEntry()" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-400 text-slate-950 font-black py-3 rounded-2xl text-xs font-game shadow-[0_0_20px_#ff2a85] hover:brightness-110 active:scale-95 transition-all">
-                <i class="fa-solid fa-power-off ml-1"></i> بدء العمل والنظام
+            <button onclick="confirmDeviceEntry()" class="w-full signature-gradient text-white font-black py-3 rounded-xl text-xs font-game neon-glow active:scale-95 transition-all">
+                <i class="fa-solid fa-power-off ml-1"></i> Démarrer l'application
             </button>
         </div>
     </div>
 
+    <!-- Modal Ajout Tarif -->
     <div id="addNewPresetModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-amber-500/50">
-            <h3 class="font-bold text-white">إضافة توقيت وتسعيرة جديدة</h3>
-            <input type="text" id="newPresetLabelInput" placeholder="اسم الخيار (مثال: 3v3 أو 15 دقيقة)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
-            <input type="number" id="newPresetDurationInput" placeholder="المدة بالدقائق (مثال: 15)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
-            <input type="number" id="newPresetPriceInput" placeholder="السعر بالدينار دج..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+        <div class="synth-card w-full max-w-xs rounded-2xl p-4 space-y-3 text-xs border border-amber-500/50">
+            <h3 class="font-bold text-textMain font-game">Nouveau Tarif & Durée</h3>
+            <input type="text" id="newPresetLabelInput" placeholder="Nom (ex: Tournoi 15min)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
+            <input type="number" id="newPresetDurationInput" placeholder="Durée en minutes (ex: 15)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
+            <input type="number" id="newPresetPriceInput" placeholder="Prix en DZD..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
             
             <div class="flex gap-2 pt-1">
-                <button onclick="closeModal('addNewPresetModal')" class="w-1/2 bg-slate-800 py-2 rounded-xl text-slate-300">إلغاء</button>
-                <button onclick="saveNewPresetItem()" class="w-1/2 bg-amber-500 text-slate-950 font-bold py-2 rounded-xl">حفظ</button>
+                <button onclick="closeModal('addNewPresetModal')" class="w-1/2 bg-surfaceHigh py-2.5 rounded-xl text-textSecondary font-medium">Annuler</button>
+                <button onclick="saveNewPresetItem()" class="w-1/2 bg-amber-500 text-bgMain font-bold py-2.5 rounded-xl">Enregistrer</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal Ajout Jeu -->
     <div id="addNewGameModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-cyan-500/50">
-            <h3 class="font-bold text-white">إضافة لعبة جديدة مع صورة</h3>
-            <input type="text" id="newGameNameInput" placeholder="اسم اللعبة..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
-            <input type="text" id="newGameCategoryInput" placeholder="التصنيف (مثال: كرة قدم)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+        <div class="synth-card w-full max-w-xs rounded-2xl p-4 space-y-3 text-xs border border-neonCyan/50">
+            <h3 class="font-bold text-textMain font-game">Ajouter un jeu PS5</h3>
+            <input type="text" id="newGameNameInput" placeholder="Nom du jeu..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
+            <input type="text" id="newGameCategoryInput" placeholder="Genre (ex: Football, Action)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
             
             <div>
-                <label class="text-[10px] text-slate-400 block mb-1">اختر صورة الغلاف من الجهاز:</label>
-                <input type="file" id="newGameImageFile" accept="image/*" class="w-full bg-black border border-slate-700 rounded-xl p-2 text-slate-300 file:mr-4 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-pink-500 file:text-white hover:file:bg-pink-600">
+                <label class="text-[10px] text-textSecondary block mb-1">Image de jaquette :</label>
+                <input type="file" id="newGameImageFile" accept="image/*" class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2 text-textSecondary file:mr-3 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-neonBlue file:text-white">
             </div>
 
             <div class="flex gap-2 pt-1">
-                <button onclick="closeModal('addNewGameModal')" class="w-1/2 bg-slate-800 py-2 rounded-xl text-slate-300">إلغاء</button>
-                <button onclick="saveNewGameItem()" class="w-1/2 bg-cyan-500 text-slate-950 font-bold py-2 rounded-xl">حفظ</button>
+                <button onclick="closeModal('addNewGameModal')" class="w-1/2 bg-surfaceHigh py-2.5 rounded-xl text-textSecondary font-medium">Annuler</button>
+                <button onclick="saveNewGameItem()" class="w-1/2 bg-neonCyan text-bgMain font-bold py-2.5 rounded-xl">Enregistrer</button>
             </div>
         </div>
     </div>
 
+    <!-- Modal Démarrage Session -->
     <div id="startSessionModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="synth-card w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 border border-pink-500/60 shadow-[0_0_30px_rgba(255,42,133,0.4)]">
-            <div class="flex justify-between items-center border-b border-pink-500/30 pb-3">
-                <h3 id="startModalPosteTitle" class="text-sm font-black text-white flex items-center gap-2">
-                    <i class="fa-solid fa-play text-viceCyan"></i> حجز جهاز جديد
+        <div class="synth-card w-full max-w-md rounded-t-3xl sm:rounded-2xl p-5 space-y-4 border border-neonBlue/60">
+            <div class="flex justify-between items-center border-b border-purple-900/40 pb-3">
+                <h3 id="startModalPosteTitle" class="text-sm font-bold text-textMain flex items-center gap-2 font-game">
+                    <i class="fa-solid fa-play text-neonCyan"></i> Réservation / Lancement de poste
                 </h3>
-                <button onclick="closeModal('startSessionModal')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button onclick="closeModal('startSessionModal')" class="text-textSecondary hover:text-textMain"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
 
             <form id="startSessionForm" onsubmit="confirmStartSession(event)" class="space-y-4 text-xs">
                 <input type="hidden" id="modalPosteId">
 
                 <div>
-                    <label class="text-slate-300 block mb-1.5 font-bold">اختر اللعبة المطلوبة:</label>
-                    <select id="modalGameSelect" class="w-full bg-black/90 border border-pink-500/40 rounded-xl p-2.5 text-white font-bold focus:outline-none">
+                    <label class="text-textSecondary block mb-1.5 font-medium">Sélectionner le jeu :</label>
+                    <select id="modalGameSelect" class="w-full bg-black/80 border border-neonBlue/40 rounded-xl p-2.5 text-textMain font-semibold focus:outline-none">
                     </select>
                 </div>
 
                 <div>
-                    <label class="text-slate-300 block mb-1.5 font-bold">نوع المباراة ووقت الجلسة:</label>
+                    <label class="text-textSecondary block mb-1.5 font-medium">Formule & Durée :</label>
                     <div class="grid grid-cols-2 gap-2" id="modalPresetOptionsGrid">
                     </div>
                 </div>
 
                 <div class="flex gap-2 pt-2">
-                    <button type="button" onclick="closeModal('startSessionModal')" class="w-1/2 bg-slate-800 text-slate-300 py-2.5 rounded-xl font-bold">إلغاء</button>
-                    <button type="submit" class="w-1/2 bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2.5 rounded-xl font-black shadow-[0_0_15px_rgba(255,42,133,0.5)]">
-                        تشغيل الجهاز
+                    <button type="button" onclick="closeModal('startSessionModal')" class="w-1/2 bg-surfaceHigh text-textSecondary py-2.5 rounded-xl font-medium">Annuler</button>
+                    <button type="submit" class="w-1/2 signature-gradient text-white py-2.5 rounded-xl font-bold neon-glow">
+                        Lancer le poste
                     </button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- Modal Ajout Frigo au Poste -->
     <div id="addSnackModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
-        <div class="synth-card w-full max-w-sm rounded-t-3xl sm:rounded-3xl p-5 space-y-3 border border-pink-500/50">
-            <div class="flex justify-between items-center border-b border-pink-500/30 pb-2">
-                <h3 class="text-xs font-bold text-white flex items-center gap-2"><i class="fa-solid fa-snowflake text-cyan-400"></i> إضافة من الثلاجة للجهاز</h3>
-                <button onclick="closeModal('addSnackModal')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+        <div class="synth-card w-full max-w-sm rounded-t-3xl sm:rounded-2xl p-5 space-y-3 border border-neonPink/50">
+            <div class="flex justify-between items-center border-b border-purple-900/40 pb-2">
+                <h3 class="text-xs font-bold text-textMain flex items-center gap-2 font-game"><i class="fa-solid fa-snowflake text-neonCyan"></i> Ajouter un produit frigo</h3>
+                <button onclick="closeModal('addSnackModal')" class="text-textSecondary"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <input type="hidden" id="targetPosteIdForSnack">
             <div id="snackSelectionList" class="space-y-2 max-h-52 overflow-y-auto custom-scrollbar"></div>
-            <button onclick="closeModal('addSnackModal')" class="w-full bg-slate-800 text-slate-300 py-2 rounded-xl text-xs font-bold">إغلاق</button>
+            <button onclick="closeModal('addSnackModal')" class="w-full bg-surfaceHigh text-textSecondary py-2.5 rounded-xl text-xs font-medium">Fermer</button>
         </div>
     </div>
 
+    <!-- Ticket de Caisse / Facture -->
     <div id="receiptTicketModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="ticket-border w-full max-w-xs rounded-3xl p-5 space-y-3 text-center shadow-[0_0_35px_rgba(255,42,133,0.6)]">
-            <div class="border-b border-pink-500/40 pb-2">
-                <div class="flex justify-between items-center text-[10px] font-game text-viceCyan mb-1">
+        <div class="ticket-border w-full max-w-xs rounded-2xl p-5 space-y-3 text-center shadow-[0_0_35px_rgba(59,130,246,0.3)]">
+            <div class="border-b border-neonBlue/30 pb-2">
+                <div class="flex justify-between items-center text-[10px] font-game text-neonCyan mb-1">
                     <span>CASA GAME PS5</span>
-                    <i class="fa-brands fa-playstation text-pink-400 text-base"></i>
+                    <i class="fa-brands fa-playstation text-neonPink text-base"></i>
                 </div>
-                <h2 class="font-game text-xl font-black text-white tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-cyan-400">
-                    CASA GAME
-                </h2>
-                <p class="text-[9px] text-pink-300 font-bold">PLAY • ENJOY • REPEAT</p>
+                <div class="flex justify-center my-1">
+                    <img src="logo.jpeg" alt="Casa Game Logo" class="h-10 w-auto object-contain">
+                </div>
+                <p class="text-[9px] text-neonCyan font-semibold">PLAY • ENJOY • REPEAT</p>
             </div>
-            <div id="ticketReceiptBody" class="text-right space-y-2 text-xs font-cairo"></div>
-            <div class="flex justify-center gap-4 text-pink-400 text-xs font-game pt-1">
+            <div id="ticketReceiptBody" class="text-right space-y-2 text-xs"></div>
+            <div class="flex justify-center gap-4 text-neonPurple text-xs font-game pt-1 opacity-70">
                 <span>△</span><span>◯</span><span>✕</span><span>⬜</span>
             </div>
-            <button onclick="closeModal('receiptTicketModal')" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-400 text-slate-950 font-black py-2.5 rounded-xl text-xs font-game shadow-[0_0_15px_#ff2a85]">
-                تسليم الوصل وإغلاق الجلسة
+            <button onclick="closeModal('receiptTicketModal')" class="w-full signature-gradient text-white font-bold py-2.5 rounded-xl text-xs font-game neon-glow">
+                Valider & Fermer le ticket
             </button>
         </div>
     </div>
 
+    <!-- Modal Nouvel Article Frigo -->
     <div id="addNewSnackItemModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="synth-card w-full max-w-xs rounded-3xl p-4 space-y-3 text-xs border border-purple-500/50">
-            <h3 class="font-bold text-white">إضافة عنصر جديد وإدارة الكمية بالثلاجة</h3>
-            <input type="text" id="newSnackNameInput" placeholder="اسم المشروب / المأكولات..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
-            <input type="number" id="newSnackPriceInput" placeholder="السعر بالدينار دج..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
-            <input type="number" id="newSnackStockInput" placeholder="الكمية المتوفرة بالثلاجة (مثال: 20)..." class="w-full bg-black border border-slate-700 rounded-xl p-2 text-white">
+        <div class="synth-card w-full max-w-xs rounded-2xl p-4 space-y-3 text-xs border border-neonPink/50">
+            <h3 class="font-bold text-textMain font-game">Ajouter au stock du frigo</h3>
+            <input type="text" id="newSnackNameInput" placeholder="Nom du produit (ex: RedBull)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
+            <input type="number" id="newSnackPriceInput" placeholder="Prix (DZD)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
+            <input type="number" id="newSnackStockInput" placeholder="Stock initial (ex: 20)..." class="w-full bg-black/60 border border-purple-900/50 rounded-xl p-2.5 text-textMain">
             <div class="flex gap-2 pt-1">
-                <button onclick="closeModal('addNewSnackItemModal')" class="w-1/2 bg-slate-800 py-2 rounded-xl text-slate-300">إلغاء</button>
-                <button onclick="saveNewSnackItem()" class="w-1/2 bg-pink-500 text-white font-bold py-2 rounded-xl">حفظ</button>
+                <button onclick="closeModal('addNewSnackItemModal')" class="w-1/2 bg-surfaceHigh py-2.5 rounded-xl text-textSecondary font-medium">Annuler</button>
+                <button onclick="saveNewSnackItem()" class="w-1/2 signature-gradient text-white font-bold py-2.5 rounded-xl">Enregistrer</button>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT LOGIC (Cloud Only Sync) -->
+    <!-- LOGIQUE JAVASCRIPT -->
     <script>
         const SUPABASE_URL = 'https://qxghyvfivvcysqrwwjbg.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InF4Z2h5dmZpdnZjeXNxcnd3amJnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM4MzI1ODMsImV4cCI6MjEwOTQwODU4M30.WNp1kAwVTpL0VQvFrTyLG8cr4t5iwdsrDbw1a6T9rfE';
@@ -557,9 +571,7 @@
 
         function startContinuousAlarm() {
             if (alarmInterval) return;
-            alarmInterval = setInterval(() => {
-                playBeepSound();
-            }, 1000);
+            alarmInterval = setInterval(() => { playBeepSound(); }, 1000);
         }
 
         function stopContinuousAlarm() {
@@ -571,31 +583,26 @@
 
         function playBeepSound() {
             try {
-                if (!audioCtx) {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                if (!audioCtx) { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+                if (audioCtx.state === 'suspended') { audioCtx.resume(); }
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.type = 'square';
                 osc.frequency.setValueAtTime(950, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.5);
+                osc.stop(audioCtx.currentTime + 0.4);
             } catch(e){}
         }
 
         function updateClockAndDate() {
             const now = new Date();
-            document.getElementById('currentTimeDisplay').innerText = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('currentTimeDisplay').innerText = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
             document.getElementById('headerTodayDate').innerText = getFormattedTodayDate();
         }
 
-        // جلب البيانات حصرياً من Supabase (لا يتم حفظ أو قراءة من LocalStorage)
         async function fetchFromCloud() {
             if (!supabaseClient) return;
             try {
@@ -659,11 +666,10 @@
 
                 refreshActiveInterface();
             } catch(e) {
-                console.error("Fetch from cloud error:", e);
+                console.error("Erreur de synchronisation cloud :", e);
             }
         }
 
-        // حفظ البيانات في Supabase حصرياً (Cloud Sync Only)
         async function saveCloudData() {
             if (!supabaseClient || isSyncing) return;
             isSyncing = true;
@@ -693,7 +699,7 @@
                     });
                 }
             } catch(e) {
-                console.error("Supabase Save Error:", e);
+                console.error("Erreur d'enregistrement Supabase :", e);
             } finally {
                 isSyncing = false;
             }
@@ -705,7 +711,6 @@
             fetchFromCloud();
             setupWelcomeModal();
             
-            // مزامنة دورية جلب البيانات من السحاب لتبقى الأجهزة متحدثة بشكل آني
             setInterval(() => {
                 fetchFromCloud();
             }, 3000);
@@ -723,7 +728,7 @@
 
         function setupWelcomeModal() {
             const today = getFormattedTodayDate();
-            document.getElementById('entryModalDate').innerText = `تاريخ اليوم: ${today}`;
+            document.getElementById('entryModalDate').innerText = `Date : ${today}`;
         }
 
         function selectDeviceRole(role) {
@@ -733,12 +738,12 @@
             const pinBox = document.getElementById('adminPinBox');
 
             if (role === 'cashier') {
-                btnCashier.className = "bg-pink-500/20 border-2 border-pink-500 text-pink-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
-                btnAdmin.className = "bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                btnCashier.className = "bg-neonBlue/20 border-2 border-neonBlue text-neonCyan py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all";
+                btnAdmin.className = "bg-black/60 border-2 border-purple-900/60 text-textSecondary py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all";
                 pinBox.classList.add('hidden');
             } else {
-                btnAdmin.className = "bg-purple-500/20 border-2 border-purple-500 text-purple-300 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
-                btnCashier.className = "bg-black/80 border-2 border-slate-700 text-slate-400 py-3 rounded-2xl font-bold text-xs flex flex-col items-center gap-1 transition-all";
+                btnAdmin.className = "bg-neonPurple/20 border-2 border-neonPurple text-neonPink py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all";
+                btnCashier.className = "bg-black/60 border-2 border-purple-900/60 text-textSecondary py-3 rounded-xl font-bold text-xs flex flex-col items-center gap-1.5 transition-all";
                 pinBox.classList.remove('hidden');
             }
         }
@@ -756,26 +761,26 @@
                     return;
                 }
                 errorElem.classList.add('hidden');
-                badge.innerText = "CASA GAME - ADMIN (HOME)";
+                badge.innerText = "CASA GAME - ADMIN";
                 
                 document.getElementById('welcomeEntryModal').classList.add('hidden');
                 document.getElementById('cashierView').classList.add('hidden');
                 document.getElementById('adminView').classList.remove('hidden');
                 navBar.innerHTML = `
-                    <div class="w-full text-center text-viceCyan font-game font-black text-xs">
-                        <i class="fa-solid fa-house-laptop ml-1"></i> لوحة متابعة المدير (عن بعد)
+                    <div class="w-full text-center text-neonCyan font-game font-bold text-xs">
+                        <i class="fa-solid fa-house-laptop ml-1"></i> Panneau d'Administration
                     </div>
                 `;
                 renderAdminDashboard();
             } else {
-                badge.innerText = "CASA GAME - CASHIER PHONE";
+                badge.innerText = "CASA GAME - CAISSE";
                 document.getElementById('welcomeEntryModal').classList.add('hidden');
                 document.getElementById('adminView').classList.add('hidden');
                 document.getElementById('cashierView').classList.remove('hidden');
                 
                 navBar.innerHTML = `
-                    <div class="w-full text-center text-pink-400 font-game font-black text-xs">
-                        <i class="fa-solid fa-cash-register ml-1"></i> هاتف الكاشير الميداني
+                    <div class="w-full text-center text-neonPink font-game font-bold text-xs">
+                        <i class="fa-solid fa-cash-register ml-1"></i> Mode Caisse & Postes
                     </div>
                 `;
                 renderGamesShowcase();
@@ -789,11 +794,11 @@
             const container = document.getElementById('gamesShowcase');
             if (!container) return;
             container.innerHTML = state.games.map(g => `
-                <div class="min-w-[115px] bg-black/80 border border-pink-500/30 rounded-2xl overflow-hidden flex-shrink-0 relative group">
-                    <img src="${g.cover}" alt="${g.name}" class="w-full h-24 object-cover">
-                    <div class="p-2 bg-slate-950/90 text-right">
-                        <p class="font-game font-extrabold text-[11px] text-white truncate">${g.name}</p>
-                        <p class="text-[9px] text-viceCyan font-bold">${g.category || 'PS5 Game'}</p>
+                <div class="min-w-[110px] synth-card rounded-xl overflow-hidden flex-shrink-0 relative group border border-purple-500/30">
+                    <img src="${g.cover}" alt="${g.name}" class="w-full h-22 object-cover">
+                    <div class="p-2 bg-surfaceCard">
+                        <p class="font-game font-bold text-[10px] text-textMain truncate">${g.name}</p>
+                        <p class="text-[8px] text-neonCyan font-semibold">${g.category || 'PS5'}</p>
                     </div>
                 </div>
             `).join('');
@@ -810,20 +815,20 @@
                 const card = document.createElement('div');
                 const isRunning = poste.active;
 
-                card.className = `synth-card rounded-2xl p-3.5 border transition-all ${
-                    isRunning ? 'neon-glow-pink bg-gradient-to-r from-purple-950/80 to-slate-950' : 'border-pink-500/30'
+                card.className = `synth-card p-4 transition-all ${
+                    isRunning ? 'neon-glow-active bg-gradient-to-r from-purple-950/40 to-surfaceCard' : 'border-purple-900/30'
                 }`;
 
                 let innerHTML = `
-                    <div class="flex justify-between items-center mb-2">
+                    <div class="flex justify-between items-center mb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="font-game text-xs font-black text-viceCyan">${poste.name}</span>
-                            <span class="text-[9px] font-bold text-slate-400">(PS5)</span>
+                            <span class="font-game text-xs font-black text-neonCyan">${poste.name}</span>
+                            <span class="text-[9px] text-textSecondary font-semibold">PS5 Console</span>
                         </div>
                         <span class="text-[9px] font-bold px-2.5 py-0.5 rounded-full ${
-                            isRunning ? 'bg-pink-500/20 text-pink-300 border border-pink-500/50' : 'bg-slate-800 text-slate-400'
+                            isRunning ? 'bg-errorRed/20 text-errorRed border border-errorRed/40' : 'bg-successGreen/20 text-successGreen border border-successGreen/40'
                         }">
-                            ${isRunning ? 'جاري اللعب الان' : 'متاح للتشغيل'}
+                            ${isRunning ? '🔴 Occupé' : '🟢 Libre'}
                         </span>
                     </div>
                 `;
@@ -848,7 +853,7 @@
                         const remainingSecs = totalAllowedSecs - elapsed;
 
                         if (remainingSecs <= 0) {
-                            timerText = "00:00 (انتهى الوقت!)";
+                            timerText = "00:00 (Temps écoulé !)";
                             isExpired = true;
                             hasAnyExpired = true;
                         } else {
@@ -859,39 +864,39 @@
                     }
 
                     innerHTML += `
-                        <div class="flex justify-between items-center bg-black/80 p-2.5 rounded-xl border border-pink-500/30 my-2">
+                        <div class="flex justify-between items-center bg-black/60 p-2.5 rounded-xl border border-purple-500/30 my-2">
                             <div>
-                                <p class="font-game text-xs font-black text-pink-400">${poste.game}</p>
-                                <p class="text-[10px] text-slate-300">${getPresetLabel(poste.preset)}</p>
+                                <p class="font-game text-xs font-black text-neonPink">${poste.game}</p>
+                                <p class="text-[10px] text-textSecondary">${getPresetLabel(poste.preset)}</p>
                             </div>
-                            <div class="text-center bg-purple-950/90 px-3 py-1 rounded-xl border border-pink-500/50">
-                                <span class="font-game text-base font-black ${isExpired ? 'text-red-400 animate-pulse' : 'text-viceCyan'}">${timerText}</span>
+                            <div class="text-center bg-surfaceHigh px-3 py-1 rounded-xl border border-neonBlue/30">
+                                <span class="font-game text-base font-black ${isExpired ? 'text-errorRed animate-pulse' : 'text-neonCyan'}">${timerText}</span>
                             </div>
                         </div>
 
                         ${poste.snacks.length > 0 ? `
-                            <div class="text-[10px] text-pink-300 mb-2 bg-pink-950/30 p-1.5 rounded-lg border border-pink-500/20">
-                                <span class="font-bold">ثلاجة (FRIGOU):</span> ${poste.snacks.map(s => s.name).join(' + ')} (${frigouTotal} دج)
+                            <div class="text-[10px] text-neonPink mb-2 bg-pink-950/20 p-1.5 rounded-lg border border-pink-500/20">
+                                <span class="font-bold">Frigo :</span> ${poste.snacks.map(s => s.name).join(' + ')} (${frigouTotal} DZD)
                             </div>
                         ` : ''}
 
                         <div class="flex gap-2 pt-1">
-                            <button onclick="openAddSnackModalToPoste(${poste.id})" class="w-1/3 bg-purple-600/20 text-purple-300 border border-purple-500/40 py-1.5 rounded-xl text-[10px] font-bold">
-                                + FRIGOU
+                            <button onclick="openAddSnackModalToPoste(${poste.id})" class="w-1/3 bg-neonPurple/20 text-neonPurple border border-neonPurple/40 py-2 rounded-xl text-[10px] font-bold">
+                                + Frigo
                             </button>
-                            <button onclick="finishPosteSession(${poste.id})" class="w-2/3 bg-gradient-to-r from-pink-500 to-cyan-400 text-slate-950 py-1.5 rounded-xl text-xs font-black shadow-[0_0_10px_#ff2a85]">
-                                إنهاء الجلسة (${grandTotal} دج)
+                            <button onclick="finishPosteSession(${poste.id})" class="w-2/3 signature-gradient text-white py-2 rounded-xl text-xs font-bold neon-glow">
+                                Terminer (${grandTotal} DZD)
                             </button>
                         </div>
                     `;
                 } else {
                     innerHTML += `
-                        <div class="py-2 text-center text-slate-500 text-xs flex justify-center items-center gap-2">
-                            <i class="fa-solid fa-gamepad text-lg opacity-40"></i>
-                            <span>جاهز لبدء مباراة جديدة</span>
+                        <div class="py-2 text-center text-textSecondary text-xs flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-gamepad text-base opacity-40"></i>
+                            <span>Prêt pour réservation</span>
                         </div>
-                        <button onclick="openStartModal(${poste.id})" class="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-2 rounded-xl text-xs font-black shadow-[0_0_12px_rgba(255,42,133,0.4)]">
-                            <i class="fa-solid fa-play ml-1"></i> بدء حجز مباراة
+                        <button onclick="openStartModal(${poste.id})" class="w-full signature-gradient text-white py-2 rounded-xl text-xs font-bold font-game neon-glow">
+                            <i class="fa-solid fa-play ml-1"></i> Réserver / Lancer
                         </button>
                     `;
                 }
@@ -923,26 +928,24 @@
             }
             
             const custom = state.customPresets.find(cp => cp.id.toString() === poste.preset.toString());
-            if (custom) {
-                return custom.price;
-            }
+            if (custom) return custom.price;
 
             return 100;
         }
 
         function getPresetLabel(preset) {
             const labels = {
-                '1v1': `1v1 (7 دقائق - ${state.presetPrices['1v1']} دج)`,
-                '1v1_extra': `1v1 إضافي (10 دقائق - ${state.presetPrices['1v1_extra']} دج)`,
-                '2v2': `2v2 (7 دقائق - ${state.presetPrices['2v2']} دج)`,
-                '2v2_extra': `2v2 إضافي (10 دقائق - ${state.presetPrices['2v2_extra']} دج)`,
-                'open': 'وقت مفتوح'
+                '1v1': `1v1 (7 min - ${state.presetPrices['1v1']} DZD)`,
+                '1v1_extra': `1v1 Extra (10 min - ${state.presetPrices['1v1_extra']} DZD)`,
+                '2v2': `2v2 (7 min - ${state.presetPrices['2v2']} DZD)`,
+                '2v2_extra': `2v2 Extra (10 min - ${state.presetPrices['2v2_extra']} DZD)`,
+                'open': 'Temps ouvert'
             };
 
             if (labels[preset]) return labels[preset];
 
             const custom = state.customPresets.find(cp => cp.id.toString() === preset.toString());
-            if (custom) return `${custom.label} (${custom.duration} د - ${custom.price} دج)`;
+            if (custom) return `${custom.label} (${custom.duration} min - ${custom.price} DZD)`;
 
             return preset;
         }
@@ -950,7 +953,7 @@
         function openStartModal(posteId) {
             const poste = state.postes.find(p => p.id === posteId);
             document.getElementById('modalPosteId').value = posteId;
-            document.getElementById('startModalPosteTitle').innerText = `حجز مباراة على ${poste.name}`;
+            document.getElementById('startModalPosteTitle').innerText = `Lancer ${poste.name}`;
 
             const gameSelect = document.getElementById('modalGameSelect');
             gameSelect.innerHTML = state.games.map(g => `<option value="${g.name}">${g.name}</option>`).join('');
@@ -958,56 +961,56 @@
             const presetsGrid = document.getElementById('modalPresetOptionsGrid');
             
             let htmlOptions = `
-                <label class="cursor-pointer bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
+                <label class="cursor-pointer bg-black/40 border border-purple-900/50 p-2.5 rounded-xl flex justify-between items-center hover:border-neonBlue transition-all">
                     <input type="radio" name="matchPreset" value="1v1" checked class="hidden peer">
-                    <div class="peer-checked:text-viceCyan">
-                        <p class="font-bold text-[11px]">1v1 (7 دقائق)</p>
-                        <p class="text-[10px] text-pink-400 font-game font-bold">${state.presetPrices['1v1']} دج</p>
+                    <div class="peer-checked:text-neonCyan">
+                        <p class="font-bold text-[11px]">1v1 (7 min)</p>
+                        <p class="text-[10px] text-neonPink font-game font-bold">${state.presetPrices['1v1']} DZD</p>
                     </div>
                 </label>
-                <label class="cursor-pointer bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
+                <label class="cursor-pointer bg-black/40 border border-purple-900/50 p-2.5 rounded-xl flex justify-between items-center hover:border-neonBlue transition-all">
                     <input type="radio" name="matchPreset" value="1v1_extra" class="hidden peer">
-                    <div class="peer-checked:text-viceCyan">
-                        <p class="font-bold text-[11px]">1v1 + إضافي</p>
-                        <p class="text-[10px] text-pink-400 font-game font-bold">${state.presetPrices['1v1_extra']} دج</p>
+                    <div class="peer-checked:text-neonCyan">
+                        <p class="font-bold text-[11px]">1v1 Extra</p>
+                        <p class="text-[10px] text-neonPink font-game font-bold">${state.presetPrices['1v1_extra']} DZD</p>
                     </div>
                 </label>
-                <label class="cursor-pointer bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
+                <label class="cursor-pointer bg-black/40 border border-purple-900/50 p-2.5 rounded-xl flex justify-between items-center hover:border-neonBlue transition-all">
                     <input type="radio" name="matchPreset" value="2v2" class="hidden peer">
-                    <div class="peer-checked:text-viceCyan">
-                        <p class="font-bold text-[11px]">2v2 (7 دقائق)</p>
-                        <p class="text-[10px] text-pink-400 font-game font-bold">${state.presetPrices['2v2']} دج</p>
+                    <div class="peer-checked:text-neonCyan">
+                        <p class="font-bold text-[11px]">2v2 (7 min)</p>
+                        <p class="text-[10px] text-neonPink font-game font-bold">${state.presetPrices['2v2']} DZD</p>
                     </div>
                 </label>
-                <label class="cursor-pointer bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
+                <label class="cursor-pointer bg-black/40 border border-purple-900/50 p-2.5 rounded-xl flex justify-between items-center hover:border-neonBlue transition-all">
                     <input type="radio" name="matchPreset" value="2v2_extra" class="hidden peer">
-                    <div class="peer-checked:text-viceCyan">
-                        <p class="font-bold text-[11px]">2v2 + إضافي</p>
-                        <p class="text-[10px] text-pink-400 font-game font-bold">${state.presetPrices['2v2_extra']} دج</p>
+                    <div class="peer-checked:text-neonCyan">
+                        <p class="font-bold text-[11px]">2v2 Extra</p>
+                        <p class="text-[10px] text-neonPink font-game font-bold">${state.presetPrices['2v2_extra']} DZD</p>
                     </div>
                 </label>
             `;
 
             state.customPresets.forEach(cp => {
                 htmlOptions += `
-                    <label class="cursor-pointer bg-black/70 border border-amber-500/40 p-2.5 rounded-xl flex justify-between items-center hover:border-amber-400">
+                    <label class="cursor-pointer bg-black/40 border border-amber-500/40 p-2.5 rounded-xl flex justify-between items-center hover:border-amber-400 transition-all">
                         <input type="radio" name="matchPreset" value="${cp.id}" class="hidden peer">
                         <div class="peer-checked:text-amber-300">
-                            <p class="font-bold text-[11px]">${cp.label} (${cp.duration} د)</p>
-                            <p class="text-[10px] text-amber-400 font-game font-bold">${cp.price} دج</p>
+                            <p class="font-bold text-[11px]">${cp.label} (${cp.duration}m)</p>
+                            <p class="text-[10px] text-amber-400 font-game font-bold">${cp.price} DZD</p>
                         </div>
                     </label>
                 `;
             });
 
             htmlOptions += `
-                <label class="cursor-pointer col-span-2 bg-black/70 border border-slate-700 p-2.5 rounded-xl flex justify-between items-center hover:border-pink-500">
+                <label class="cursor-pointer col-span-2 bg-black/40 border border-purple-900/50 p-2.5 rounded-xl flex justify-between items-center hover:border-neonBlue transition-all">
                     <input type="radio" name="matchPreset" value="open" class="hidden peer">
-                    <div class="peer-checked:text-viceCyan">
-                        <p class="font-bold text-[11px]">وقت مفتوح (بالدقيقة)</p>
-                        <p class="text-[10px] text-slate-400">${state.presetPrices['open']} دج / الساعة</p>
+                    <div class="peer-checked:text-neonCyan">
+                        <p class="font-bold text-[11px]">Temps libre / ouvert</p>
+                        <p class="text-[10px] text-textSecondary">${state.presetPrices['open']} DZD / heure</p>
                     </div>
-                    <i class="fa-solid fa-clock text-pink-400"></i>
+                    <i class="fa-solid fa-clock text-neonPink"></i>
                 </label>
             `;
 
@@ -1056,11 +1059,11 @@
             container.innerHTML = state.snacksMenu.map(s => {
                 const isOutOfStock = s.stock <= 0;
                 return `
-                    <button onclick="${isOutOfStock ? '' : `buyQuickSnack(${s.id})`}" class="${isOutOfStock ? 'opacity-40 bg-red-950/20 border-red-900 cursor-not-allowed' : 'bg-black/80 hover:border-pink-500 border-slate-800'} border p-2 rounded-xl text-right transition-all">
-                        <p class="text-[10px] font-bold text-white truncate">${s.name}</p>
+                    <button onclick="${isOutOfStock ? '' : `buyQuickSnack(${s.id})`}" class="${isOutOfStock ? 'opacity-40 bg-red-950/20 border-red-900 cursor-not-allowed' : 'synth-card hover:border-neonBlue'} border p-2.5 rounded-xl text-right transition-all">
+                        <p class="text-[10px] font-bold text-textMain truncate">${s.name}</p>
                         <div class="flex justify-between items-center mt-1">
-                            <span class="text-[10px] font-black text-pink-400 font-game">${s.price} دج</span>
-                            <span class="text-[9px] ${isOutOfStock ? 'text-red-400 font-bold' : 'text-slate-400'}">${isOutOfStock ? 'نفذت' : `x${s.stock}`}</span>
+                            <span class="text-[10px] font-black text-neonPink font-game">${s.price} DZD</span>
+                            <span class="text-[9px] ${isOutOfStock ? 'text-errorRed font-bold' : 'text-textSecondary'}">${isOutOfStock ? 'Rupture' : `x${s.stock}`}</span>
                         </div>
                     </button>
                 `;
@@ -1089,13 +1092,13 @@
             container.innerHTML = state.snacksMenu.map(s => {
                 const isOutOfStock = s.stock <= 0;
                 return `
-                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/30 text-xs">
+                    <div class="flex justify-between items-center p-2.5 synth-card border-purple-500/20 text-xs">
                         <div>
-                            <span class="font-bold text-white">${s.name} (${s.price} دج)</span>
-                            <span class="text-[10px] ${isOutOfStock ? 'text-red-400 font-bold' : 'text-slate-400'} block">المتبقي: ${s.stock}</span>
+                            <span class="font-bold text-textMain">${s.name} (${s.price} DZD)</span>
+                            <span class="text-[10px] ${isOutOfStock ? 'text-errorRed font-bold' : 'text-textSecondary'} block">Stock : ${s.stock}</span>
                         </div>
-                        <button onclick="${isOutOfStock ? '' : `addSnackToPoste(${posteId}, ${s.id})`}" class="${isOutOfStock ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : 'bg-pink-500 text-white'} text-[10px] px-2.5 py-1 rounded-lg font-bold">
-                            ${isOutOfStock ? 'منتهي' : '+ إضافة'}
+                        <button onclick="${isOutOfStock ? '' : `addSnackToPoste(${posteId}, ${s.id})`}" class="${isOutOfStock ? 'bg-surfaceHigh text-textSecondary cursor-not-allowed' : 'signature-gradient text-white'} text-[10px] px-3 py-1 rounded-lg font-bold">
+                            ${isOutOfStock ? 'Épuisé' : '+ Ajouter'}
                         </button>
                     </div>
                 `;
@@ -1128,7 +1131,7 @@
             const matchPrice = calculatePostePrice(poste);
             const frigouPrice = poste.snacks.reduce((a,b) => a + b.price, 0);
             const grandTotal = matchPrice + frigouPrice;
-            const timestampStr = new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            const timestampStr = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
             const sessionRecord = {
                 id: Date.now(),
@@ -1155,41 +1158,41 @@
                         session_timestamp: timestampStr
                     });
                 } catch(e) {
-                    console.error("Error inserting session log:", e);
+                    console.error("Erreur enregistrement log session :", e);
                 }
             }
 
             const ticketBody = document.getElementById('ticketReceiptBody');
             ticketBody.innerHTML = `
-                <div class="bg-black/80 p-2 rounded-xl border border-pink-500/30 space-y-1.5">
+                <div class="synth-card p-3 border-purple-500/30 space-y-1.5">
                     <div class="flex justify-between">
-                        <span class="text-slate-400">الجهاز (POSTE):</span>
-                        <span class="font-bold text-white font-game">${poste.name}</span>
+                        <span class="text-textSecondary">Poste :</span>
+                        <span class="font-bold text-textMain font-game">${poste.name}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-400">اللعبة:</span>
-                        <span class="font-bold text-pink-400">${poste.game}</span>
+                        <span class="text-textSecondary">Jeu :</span>
+                        <span class="font-bold text-neonPink">${poste.game}</span>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-slate-400">نوع الجلسة:</span>
-                        <span class="text-slate-200">${getPresetLabel(poste.preset)}</span>
+                        <span class="text-textSecondary">Formule :</span>
+                        <span class="text-textMain">${getPresetLabel(poste.preset)}</span>
                     </div>
                 </div>
 
-                <div class="bg-black/90 p-2.5 rounded-xl border border-cyan-500/40 space-y-2">
+                <div class="synth-card p-3 border-neonBlue/40 space-y-2">
                     <div class="flex justify-between items-center text-xs">
-                        <span class="font-bold text-slate-300">تكلفة اللعب (FRAIS):</span>
-                        <span class="font-game font-bold text-viceCyan">${matchPrice} دج</span>
+                        <span class="font-medium text-textSecondary">Match (Frais) :</span>
+                        <span class="font-game font-bold text-neonCyan">${matchPrice} DZD</span>
                     </div>
                     ${frigouPrice > 0 ? `
                         <div class="flex justify-between items-center text-xs">
-                            <span class="font-bold text-slate-300">الثلاجة (FRIGOU ❄):</span>
-                            <span class="font-game font-bold text-pink-400">${frigouPrice} دج</span>
+                            <span class="font-medium text-textSecondary">Frigo (Snacks) :</span>
+                            <span class="font-game font-bold text-neonPink">${frigouPrice} DZD</span>
                         </div>
                     ` : ''}
-                    <div class="border-t border-pink-500/40 pt-2 flex justify-between items-center text-sm font-black text-emerald-400">
-                        <span>الإجمالي (TOTAL):</span>
-                        <span class="font-game text-base text-cyan-300">${grandTotal} دج</span>
+                    <div class="border-t border-purple-500/30 pt-2 flex justify-between items-center text-sm font-black text-successGreen">
+                        <span>TOTAL :</span>
+                        <span class="font-game text-base text-neonCyan">${grandTotal} DZD</span>
                     </div>
                 </div>
             `;
@@ -1216,7 +1219,7 @@
             const totalIncome = matchIncome + snackIncome;
 
             const todayIncomeElem = document.getElementById('todayIncomeText');
-            if (todayIncomeElem) todayIncomeElem.innerText = `${totalIncome} دج`;
+            if (todayIncomeElem) todayIncomeElem.innerText = `${totalIncome} DZD`;
         }
 
         function renderAdminDashboard() {
@@ -1241,12 +1244,12 @@
             const customList = document.getElementById('customPresetsList');
             if (customList) {
                 if (state.customPresets.length === 0) {
-                    customList.innerHTML = `<p class="text-[9px] text-slate-500">لا توجد تسعيرات مخصصة بعد</p>`;
+                    customList.innerHTML = `<p class="text-[9px] text-textSecondary">Aucun tarif personnalisé</p>`;
                 } else {
                     customList.innerHTML = state.customPresets.map((cp, idx) => `
-                        <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-amber-500/20 text-xs">
-                            <span class="font-bold text-white">${cp.label} (${cp.duration} دقيقة) - <span class="text-amber-400 font-game">${cp.price} دج</span></span>
-                            <button onclick="removeCustomPreset(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <div class="flex justify-between items-center p-2 synth-card border-amber-500/20 text-xs">
+                            <span class="font-bold text-textMain">${cp.label} (${cp.duration} min) - <span class="text-amber-400 font-game">${cp.price} DZD</span></span>
+                            <button onclick="removeCustomPreset(${idx})" class="text-errorRed text-xs"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     `).join('');
                 }
@@ -1256,22 +1259,22 @@
             const snackIncome = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
             const totalIncome = matchIncome + snackIncome;
 
-            document.getElementById('adminMatchEarnings').innerText = `${matchIncome} دج`;
-            document.getElementById('adminSnackEarnings').innerText = `${snackIncome} دج`;
+            document.getElementById('adminMatchEarnings').innerText = `${matchIncome} DZD`;
+            document.getElementById('adminSnackEarnings').innerText = `${snackIncome} DZD`;
 
             const historicalTotal = state.dailyArchive.reduce((acc, item) => acc + item.grandTotal, 0) + totalIncome;
             const grandElem = document.getElementById('grandTotalRevenueText');
-            if (grandElem) grandElem.innerText = `${historicalTotal} دج`;
+            if (grandElem) grandElem.innerText = `${historicalTotal} DZD`;
 
             const gamesContainer = document.getElementById('adminGamesList');
             if (gamesContainer) {
                 gamesContainer.innerHTML = state.games.map((g, idx) => `
-                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-cyan-500/20 text-xs">
+                    <div class="flex justify-between items-center p-2 synth-card border-purple-500/20 text-xs">
                         <div class="flex items-center gap-2">
                             <img src="${g.cover}" class="w-8 h-8 rounded-lg object-cover">
-                            <span class="font-bold text-white">${g.name} (${g.category || 'PS5'})</span>
+                            <span class="font-bold text-textMain">${g.name} (${g.category || 'PS5'})</span>
                         </div>
-                        <button onclick="removeGameItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                        <button onclick="removeGameItem(${idx})" class="text-errorRed text-xs"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `).join('');
             }
@@ -1279,15 +1282,15 @@
             const archiveContainer = document.getElementById('dailyArchiveLogs');
             if (archiveContainer) {
                 if (state.dailyArchive.length === 0) {
-                    archiveContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد أرشيفات للأيام السابقة بعد</p>`;
+                    archiveContainer.innerHTML = `<p class="text-center text-textSecondary text-xs py-3">Aucune archive disponible</p>`;
                 } else {
                     archiveContainer.innerHTML = state.dailyArchive.map(item => `
-                        <div class="p-2.5 bg-black/80 rounded-xl border border-pink-500/20 flex justify-between items-center text-xs">
+                        <div class="p-2.5 synth-card border-purple-500/20 flex justify-between items-center text-xs">
                             <div>
-                                <p class="font-bold text-white font-game">${item.date}</p>
-                                <p class="text-[10px] text-slate-400">ألعاب: ${item.totalGames} دج | ثلاجة: ${item.totalSnacks} دج</p>
+                                <p class="font-bold text-textMain font-game">${item.date}</p>
+                                <p class="text-[10px] text-textSecondary">Jeux : ${item.totalGames} DZD | Frigo : ${item.totalSnacks} DZD</p>
                             </div>
-                            <span class="font-game font-black text-pink-400 text-sm">${item.grandTotal} دج</span>
+                            <span class="font-game font-black text-neonPink text-sm">${item.grandTotal} DZD</span>
                         </div>
                     `).join('');
                 }
@@ -1296,14 +1299,14 @@
             const snackContainer = document.getElementById('adminSnackList');
             if (snackContainer) {
                 snackContainer.innerHTML = state.snacksMenu.map((s, idx) => `
-                    <div class="flex justify-between items-center p-2 bg-black/80 rounded-xl border border-pink-500/20 text-xs">
+                    <div class="flex justify-between items-center p-2 synth-card border-purple-500/20 text-xs">
                         <div>
-                            <span class="font-bold text-white">${s.name} - <span class="text-pink-400 font-game">${s.price} دج</span></span>
-                            <span class="text-[10px] text-slate-400 block">المخزون المتوفر: <strong class="text-viceCyan">${s.stock}</strong></span>
+                            <span class="font-bold text-textMain">${s.name} - <span class="text-neonPink font-game">${s.price} DZD</span></span>
+                            <span class="text-[10px] text-textSecondary block">Stock : <strong class="text-neonCyan">${s.stock}</strong></span>
                         </div>
                         <div class="flex items-center gap-2">
-                            <input type="number" value="${s.stock}" onchange="updateSnackStock(${idx}, this.value)" class="w-14 bg-black border border-slate-700 rounded-lg p-1 text-center text-xs text-white">
-                            <button onclick="removeSnackItem(${idx})" class="text-red-400 text-xs"><i class="fa-solid fa-trash"></i></button>
+                            <input type="number" value="${s.stock}" onchange="updateSnackStock(${idx}, this.value)" class="w-14 bg-black/60 border border-purple-900/50 rounded-lg p-1 text-center text-xs text-textMain">
+                            <button onclick="removeSnackItem(${idx})" class="text-errorRed text-xs"><i class="fa-solid fa-trash"></i></button>
                         </div>
                     </div>
                 `).join('');
@@ -1312,15 +1315,15 @@
             const logsContainer = document.getElementById('adminSessionLogs');
             if (logsContainer) {
                 if (state.sessionLogs.length === 0) {
-                    logsContainer.innerHTML = `<p class="text-center text-slate-500 text-xs py-3">لا توجد سجلات معاملات اليوم</p>`;
+                    logsContainer.innerHTML = `<p class="text-center text-textSecondary text-xs py-3">Aucune session enregistrée aujourd'hui</p>`;
                 } else {
                     logsContainer.innerHTML = state.sessionLogs.map(log => `
-                        <div class="p-2.5 bg-black/80 rounded-xl border border-slate-800 flex justify-between items-center text-xs">
+                        <div class="p-2.5 synth-card border-purple-900/40 flex justify-between items-center text-xs">
                             <div>
-                                <p class="font-bold text-white">${log.posteName} - <span class="text-pink-400">${log.game}</span></p>
-                                <p class="text-[10px] text-slate-400">${log.timestamp} | ${log.preset}</p>
+                                <p class="font-bold text-textMain">${log.posteName} - <span class="text-neonPink">${log.game}</span></p>
+                                <p class="text-[10px] text-textSecondary">${log.timestamp} | ${log.preset}</p>
                             </div>
-                            <span class="font-game font-bold text-viceCyan">${log.grandTotal} دج</span>
+                            <span class="font-game font-bold text-neonCyan">${log.grandTotal} DZD</span>
                         </div>
                     `).join('');
                 }
@@ -1328,7 +1331,7 @@
         }
 
         async function clearDatabaseExceptPassword() {
-            if (confirm("⚠️ تحذير خطير: هل أنت متأكد من رغبتك في حذف وتفريغ جميع بيانات الألعاب، المشروبات، الجلسات، والأرشيف؟\n\n(سيتم الاحتفاظ بكلمة مرور المدير فقط).")) {
+            if (confirm("⚠️ Attention : Voulez-vous vraiment vider toutes les données (jeux, frigo, sessions) en conservant uniquement le code PIN admin ?")) {
                 const currentPin = state.adminPin;
 
                 state.games = [];
@@ -1374,12 +1377,12 @@
                             });
                         }
                     } catch(e) {
-                        console.error("Error clearing database:", e);
+                        console.error("Erreur vidage BDD :", e);
                     }
                 }
 
                 renderAdminDashboard();
-                alert('✨ تم تفريغ قاعدة البيانات بالكامل بنجاح مع الاحتفاظ بكلمة مرور المدير فقط!');
+                alert('✨ Base de données réinitialisée avec succès !');
             }
         }
 
@@ -1388,10 +1391,10 @@
             if (newPin.length >= 4) {
                 state.adminPin = newPin;
                 await saveCloudData();
-                alert('تم تغيير كلمة المرور بنجاح في قاعدة البيانات!');
+                alert('Code PIN mis à jour avec succès dans le cloud !');
                 document.getElementById('newAdminPinInput').value = '';
             } else {
-                alert('يرجى إدخال كلمة مرور تتكون من 4 أرقام/رموز على الأقل.');
+                alert('Veuillez entrer un code d’au moins 4 caractères.');
             }
         }
 
@@ -1412,12 +1415,7 @@
             const price = parseFloat(document.getElementById('newPresetPriceInput').value);
 
             if (label && duration > 0 && price >= 0) {
-                state.customPresets.push({
-                    id: Date.now(),
-                    label,
-                    duration,
-                    price
-                });
+                state.customPresets.push({ id: Date.now(), label, duration, price });
                 await saveCloudData();
                 renderAdminDashboard();
                 closeModal('addNewPresetModal');
@@ -1441,7 +1439,7 @@
             const fileInput = document.getElementById('newGameImageFile');
 
             if (!name) {
-                alert('يرجى إدخال اسم اللعبة');
+                alert('Veuillez entrer un nom de jeu.');
                 return;
             }
 
@@ -1461,12 +1459,7 @@
                 await supabaseClient.from('casa_games').insert(newGameObj);
             }
 
-            state.games.push({
-                id: Date.now(),
-                name,
-                category: category || 'PS5',
-                cover: coverUrl
-            });
+            state.games.push({ id: Date.now(), name, category: category || 'PS5', cover: coverUrl });
 
             if (state.deviceRole === 'admin') renderAdminDashboard();
             else renderGamesShowcase();
@@ -1496,14 +1489,14 @@
             if (!resultElem) return;
 
             if (diff === 0) {
-                resultElem.innerText = "متطابق 100% (0 دج)";
-                resultElem.className = "font-game font-black text-emerald-400";
+                resultElem.innerText = "Parfaitement équilibré (0 DZD)";
+                resultElem.className = "font-game font-bold text-successGreen";
             } else if (diff > 0) {
-                resultElem.innerText = `فائض بالصندوق: +${diff} دج`;
-                resultElem.className = "font-game font-black text-viceCyan";
+                resultElem.innerText = `Excédant en caisse : +${diff} DZD`;
+                resultElem.className = "font-game font-bold text-neonCyan";
             } else {
-                resultElem.innerText = `عجز بالصندوق: ${diff} دج`;
-                resultElem.className = "font-game font-black text-red-400";
+                resultElem.innerText = `Manquant en caisse : ${diff} DZD`;
+                resultElem.className = "font-game font-bold text-errorRed";
             }
         }
 
@@ -1552,7 +1545,7 @@
         }
 
         async function archiveAndResetDay() {
-            if (confirm("هل أنت تأكد من تصفير وأرشفة مداخيل اليوم؟ سيتم حفظ المجموع في السجل التراكمي للأيام السابقة.")) {
+            if (confirm("Voulez-vous archiver et réinitialiser les recettes de la journée en cours ?")) {
                 const matchIncome = state.sessionLogs.reduce((acc, log) => acc + log.matchPrice, 0);
                 const snackIncome = state.sessionLogs.reduce((acc, log) => acc + log.frigouPrice, 0) + state.quickSnackEarnings;
                 const totalIncome = matchIncome + snackIncome;
